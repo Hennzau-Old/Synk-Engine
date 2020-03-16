@@ -31,7 +31,7 @@ void Window::update() const
     glfwPollEvents();
 }
 
-int Window::createWindow(const WindowCreateInfo& createInfo)
+int Window::createWindow()
 {
     if (!glfwInit())
     {
@@ -43,7 +43,7 @@ int Window::createWindow(const WindowCreateInfo& createInfo)
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, windowInfo.resizable);
 
-    m_window = glfwCreateWindow(createInfo.initialWidth, createInfo.initialHeight, createInfo.title.c_str(), nullptr, nullptr);
+    m_window = glfwCreateWindow(windowInfo.width, windowInfo.height, windowInfo.title.c_str(), nullptr, nullptr);
 
     if (!m_window)
     {
@@ -62,7 +62,7 @@ int Window::createWindow(Window* window, const WindowCreateInfo& createInfo)
 {
     window->setData(createInfo);
 
-    return window->createWindow(createInfo);
+    return window->createWindow();
 }
 
 void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height)

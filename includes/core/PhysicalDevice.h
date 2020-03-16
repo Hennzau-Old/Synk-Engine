@@ -27,8 +27,8 @@ class PhysicalDevice
 
         struct PhysicalDeviceCreateInfo
         {
-            Instance*               instance  = nullptr;
-            Surface*                surface   = nullptr;
+            Instance*               pInstance = nullptr;
+            Surface*                pSurface   = nullptr;
         };
 
         struct QueueFamilyIndices
@@ -54,8 +54,8 @@ class PhysicalDevice
 
           struct PhysicalDeviceComponents
           {
-              Instance*               instance  = nullptr;
-              Surface*                surface   = nullptr;
+              Instance*               pInstance = nullptr;
+              Surface*                pSurface  = nullptr;
 
           }   m_components;
 
@@ -66,23 +66,23 @@ class PhysicalDevice
         PhysicalDevice();
         ~PhysicalDevice();
 
-        void                      clean();
-        void                      setData(const PhysicalDeviceCreateInfo& createInfo);
+        void                        clean();
+        void                        setData(const PhysicalDeviceCreateInfo& createInfo);
 
-        static int                createPhysicalDevice(PhysicalDevice* physicalDevice, const PhysicalDeviceCreateInfo& createInfo);
+        static int                  createPhysicalDevice(PhysicalDevice* physicalDevice, const PhysicalDeviceCreateInfo& createInfo);
 
-        inline VkPhysicalDevice&  getPhysicalDevice() { return m_physicalDevice; }
+        inline VkPhysicalDevice&    getPhysicalDevice() { return m_physicalDevice; }
         inline QueueFamilyIndices&  getQueueFamilies() { return m_queueFamily; }
 
         /* variables */
 
-        PhysicalDeviceInfo        physicalDeviceInfo;
+        PhysicalDeviceInfo          physicalDeviceInfo;
 
     private:
 
         /* functions */
 
-        int                         createPhysicalDevice(const PhysicalDeviceCreateInfo& createInfo);
+        int                         createPhysicalDevice();
         uint32_t                    ratePhysicalDeviceSuitability(const VkPhysicalDevice& physicalDevice);
         QueueFamilyIndices          findQueueFamilies(const VkPhysicalDevice& physicalDevice);
         bool                        checkDeviceExtensionSupport(const VkPhysicalDevice& physicalDevice);

@@ -19,8 +19,8 @@ void LogicalDevice::clean()
 
 void LogicalDevice::setData(const LogicalDeviceCreateInfo& createInfo)
 {
-    m_components.instance       = createInfo.instance;
-    m_components.physicalDevice = createInfo.physicalDevice;
+    m_components.pInstance       = createInfo.pInstance;
+    m_components.pPhysicalDevice = createInfo.pPhysicalDevice;
 }
 
 void LogicalDevice::wait() const
@@ -28,9 +28,9 @@ void LogicalDevice::wait() const
     vkDeviceWaitIdle(m_logicalDevice);
 }
 
-int LogicalDevice::createLogicalDevice(const LogicalDeviceCreateInfo& createInfo)
+int LogicalDevice::createLogicalDevice()
 {
-    auto indices = createInfo.physicalDevice->getQueueFamilies();
+    auto indices = m_components.pPhysicalDevice->getQueueFamilies();
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies =
@@ -60,19 +60,19 @@ int LogicalDevice::createLogicalDevice(const LogicalDeviceCreateInfo& createInfo
     logicalDeviceCreateInfo.queueCreateInfoCount    = static_cast<uint32_t>(queueCreateInfos.size());
     logicalDeviceCreateInfo.pQueueCreateInfos       = queueCreateInfos.data();
     logicalDeviceCreateInfo.pEnabledFeatures        = &deviceFeatures;
-    logicalDeviceCreateInfo.enabledExtensionCount   = static_cast<uint32_t>(createInfo.physicalDevice->deviceExtensions.size());
-    logicalDeviceCreateInfo.ppEnabledExtensionNames = createInfo.physicalDevice->deviceExtensions.data();
+    logicalDeviceCreateInfo.enabledExtensionCount   = static_cast<uint32_t>(m_components.pPhysicalDevice->deviceExtensions.size());
+    logicalDeviceCreateInfo.ppEnabledExtensionNames = m_components.pPhysicalDevice->deviceExtensions.data();
 
     if (Instance::enabledValidationLayers)
     {
-        logicalDeviceCreateInfo.enabledLayerCount   = static_cast<uint32_t>(createInfo.instance->validationLayers.size());
-        logicalDeviceCreateInfo.ppEnabledLayerNames = createInfo.instance->validationLayers.data();
+        logicalDeviceCreateInfo.enabledLayerCount   = static_cast<uint32_t>(m_components.pInstance->validationLayers.size());
+        logicalDeviceCreateInfo.ppEnabledLayerNames = m_components.pInstance->validationLayers.data();
     } else
     {
         logicalDeviceCreateInfo.enabledLayerCount   = 0;
     }
 
-    if (vkCreateDevice(createInfo.physicalDevice->getPhysicalDevice(), &logicalDeviceCreateInfo, nullptr, &m_logicalDevice) != VK_SUCCESS)
+    if (vkCreateDevice(m_components.pPhysicalDevice->getPhysicalDevice(), &logicalDeviceCreateInfo, nullptr, &m_logicalDevice) != VK_SUCCESS)
     {
         Logger::printError("LogicalDevice::createLogicalDevice", "vkCreateDevice failed!");
 
@@ -90,5 +90,5 @@ int LogicalDevice::createLogicalDevice(LogicalDevice* logicalDevice, const Logic
 {
     logicalDevice->setData(createInfo);
 
-    return logicalDevice->createLogicalDevice(createInfo);
+    return logicalDevice->createLogicalDevice();
 }

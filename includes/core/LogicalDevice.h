@@ -21,8 +21,8 @@ class LogicalDevice
 
         struct LogicalDeviceComponents
         {
-            Instance*             instance        = nullptr;
-            PhysicalDevice*       physicalDevice  = nullptr;
+            Instance*             pInstance       = nullptr;
+            PhysicalDevice*       pPhysicalDevice = nullptr;
 
         } m_components;
 
@@ -36,8 +36,8 @@ class LogicalDevice
 
         struct LogicalDeviceCreateInfo
         {
-            Instance*             instance        = nullptr;
-            PhysicalDevice*       physicalDevice  = nullptr;
+            Instance*             pInstance       = nullptr;
+            PhysicalDevice*       pPhysicalDevice = nullptr;
         };
 
         /* functions */
@@ -65,7 +65,7 @@ class LogicalDevice
 
         /* functions */
 
-        int                       createLogicalDevice(const LogicalDeviceCreateInfo& createInfo);
+        int                       createLogicalDevice();
 
         /* variables */
 

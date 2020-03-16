@@ -67,7 +67,7 @@ class Window
 
         /* functions */
 
-        int                       createWindow(const WindowCreateInfo& createInfo);
+        int                       createWindow();
 
         /* variables */
 

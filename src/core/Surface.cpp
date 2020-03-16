@@ -12,20 +12,20 @@ Surface::~Surface()
 
 void Surface::clean()
 {
-    vkDestroySurfaceKHR(m_surfaceComponents.instance->getInstance(), m_surface, nullptr);
+    vkDestroySurfaceKHR(m_components.pInstance->getInstance(), m_surface, nullptr);
 
     Logger::printInfo("Surface::clean", "vkDestroySurfaceKHR!");
 }
 
 void Surface::setData(const SurfaceCreateInfo& createInfo)
 {
-    m_surfaceComponents.instance = createInfo.instance;
-    m_surfaceComponents.window   = createInfo.window;
+    m_components.pInstance = createInfo.pInstance;
+    m_components.pWindow   = createInfo.pWindow;
 }
 
-int Surface::createSurface(const SurfaceCreateInfo& createInfo)
+int Surface::createSurface()
 {
-    if (glfwCreateWindowSurface(createInfo.instance->getInstance(), createInfo.window->getWindow(), nullptr, &m_surface) != VK_SUCCESS)
+    if (glfwCreateWindowSurface(m_components.pInstance->getInstance(), m_components.pWindow->getWindow(), nullptr, &m_surface) != VK_SUCCESS)
     {
         Logger::printError("Surface::createSurface", "glfwCreateWindowSurface failed!");
 
@@ -39,5 +39,5 @@ int Surface::createSurface(Surface* surface, const SurfaceCreateInfo& createInfo
 {
     surface->setData(createInfo);
 
-    return surface->createSurface(createInfo);
+    return surface->createSurface();
 }

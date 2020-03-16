@@ -21,9 +21,9 @@ class Surface
 
         struct SurfaceComponents
         {
-            Instance*           instance;
-            Window*             window;
-        }                       m_surfaceComponents;
+            Instance*           pInstance;
+            Window*             pWindow;
+        }                       m_components;
 
     public:
 
@@ -35,8 +35,8 @@ class Surface
 
         struct SurfaceCreateInfo
         {
-            Instance*           instance;
-            Window*             window;
+            Instance*           pInstance;
+            Window*             pWindow;
         };
 
         /* functions */
@@ -57,7 +57,7 @@ class Surface
 
         /* functions */
 
-        int                       createSurface(const SurfaceCreateInfo& createInfo);
+        int                       createSurface();
 
         /* variables */
 

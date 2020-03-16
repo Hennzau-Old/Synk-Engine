@@ -25,10 +25,10 @@ class Swapchain
 
         struct SwapchainComponents
         {
-            Window*                         window          = nullptr;
-            Surface*                        surface         = nullptr;
-            PhysicalDevice*                 physicalDevice  = nullptr;
-            LogicalDevice*                  logicalDevice   = nullptr;
+            Window*                         pWindow         = nullptr;
+            Surface*                        pSurface        = nullptr;
+            PhysicalDevice*                 pPhysicalDevice = nullptr;
+            LogicalDevice*                  pLogicalDevice  = nullptr;
 
         } m_components;
 
@@ -42,10 +42,10 @@ class Swapchain
 
         struct SwapchainCreateInfo
         {
-            Window*                         window          = nullptr;
-            Surface*                        surface         = nullptr;
-            PhysicalDevice*                 physicalDevice  = nullptr;
-            LogicalDevice*                  logicalDevice   = nullptr;
+            Window*                         pWindow         = nullptr;
+            Surface*                        pSurface        = nullptr;
+            PhysicalDevice*                 pPhysicalDevice = nullptr;
+            LogicalDevice*                  pLogicalDevice  = nullptr;
 
             VkImageUsageFlags               imageUsage;
         };

@@ -14,22 +14,22 @@ void Swapchain::clean()
 {
     for (auto imageView : m_imageViews)
     {
-        vkDestroyImageView(m_components.logicalDevice->getLogicalDevice(), imageView, nullptr);
+        vkDestroyImageView(m_components.pLogicalDevice->getLogicalDevice(), imageView, nullptr);
     }
 
     Logger::printInfo("Swapchain::clean", "vkDestroyImageView!");
 
-    vkDestroySwapchainKHR(m_components.logicalDevice->getLogicalDevice(), m_swapchain, nullptr);
+    vkDestroySwapchainKHR(m_components.pLogicalDevice->getLogicalDevice(), m_swapchain, nullptr);
 
     Logger::printInfo("Swapchain::clean", "vkDestroySwapchainKHR!");
 }
 
 void Swapchain::setData(const SwapchainCreateInfo& createInfo)
 {
-    m_components.window         = createInfo.window;
-    m_components.surface        = createInfo.surface;
-    m_components.physicalDevice = createInfo.physicalDevice;
-    m_components.logicalDevice  = createInfo.logicalDevice;
+    m_components.pWindow         = createInfo.pWindow;
+    m_components.pSurface        = createInfo.pSurface;
+    m_components.pPhysicalDevice = createInfo.pPhysicalDevice;
+    m_components.pLogicalDevice  = createInfo.pLogicalDevice;
 
     swapchainInfo.imageUsage = createInfo.imageUsage;
 }
@@ -69,7 +69,7 @@ Swapchain::SwapchainSupportDetails Swapchain::querySwapchainSupportDetails(const
 
 int Swapchain::createSwapChain()
 {
-    SwapchainSupportDetails swapchainSupport = querySwapchainSupportDetails(m_components.physicalDevice->getPhysicalDevice(), m_components.surface->getSurface());
+    SwapchainSupportDetails swapchainSupport = querySwapchainSupportDetails(m_components.pPhysicalDevice->getPhysicalDevice(), m_components.pSurface->getSurface());
 
     m_surfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.formats);
     m_presentMode   = chooseSwapPresentMode(swapchainSupport.presentModes);
@@ -84,7 +84,7 @@ int Swapchain::createSwapChain()
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType                    = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface                  = m_components.surface->getSurface();
+    createInfo.surface                  = m_components.pSurface->getSurface();
     createInfo.minImageCount            = imageCount;
     createInfo.imageFormat              = m_surfaceFormat.format;
     createInfo.imageColorSpace          = m_surfaceFormat.colorSpace;
@@ -92,7 +92,7 @@ int Swapchain::createSwapChain()
     createInfo.imageArrayLayers         = 1;
     createInfo.imageUsage               = swapchainInfo.imageUsage;
 
-    auto indices  = m_components.physicalDevice->getQueueFamilies();
+    auto indices  = m_components.pPhysicalDevice->getQueueFamilies();
 
     uint32_t queueFamilyIndices[] =
     {
@@ -118,17 +118,17 @@ int Swapchain::createSwapChain()
     createInfo.clipped          = VK_TRUE;
     createInfo.oldSwapchain     = VK_NULL_HANDLE;
 
-    if (vkCreateSwapchainKHR(m_components.logicalDevice->getLogicalDevice(), &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
+    if (vkCreateSwapchainKHR(m_components.pLogicalDevice->getLogicalDevice(), &createInfo, nullptr, &m_swapchain) != VK_SUCCESS)
     {
         Logger::printError("SwapChain::createSwapChain", "vkCreateSwapchainKHR failed!");
 
         return 1;
     }
 
-    vkGetSwapchainImagesKHR(m_components.logicalDevice->getLogicalDevice(), m_swapchain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(m_components.pLogicalDevice->getLogicalDevice(), m_swapchain, &imageCount, nullptr);
     m_images.resize(imageCount);
 
-    vkGetSwapchainImagesKHR(m_components.logicalDevice->getLogicalDevice(), m_swapchain, &imageCount, m_images.data());
+    vkGetSwapchainImagesKHR(m_components.pLogicalDevice->getLogicalDevice(), m_swapchain, &imageCount, m_images.data());
 
     m_imageFormat = m_surfaceFormat.format;
 
@@ -157,7 +157,7 @@ int Swapchain::createImageViews()
         createInfo.subresourceRange.baseArrayLayer  = 0;
         createInfo.subresourceRange.layerCount      = 1;
 
-        if (vkCreateImageView(m_components.logicalDevice->getLogicalDevice(), &createInfo, nullptr, &m_imageViews[i]) != VK_SUCCESS)
+        if (vkCreateImageView(m_components.pLogicalDevice->getLogicalDevice(), &createInfo, nullptr, &m_imageViews[i]) != VK_SUCCESS)
         {
             Logger::printError("SwapChain::createImageViews", "vkCreateImageView failed!");
         }
@@ -210,8 +210,8 @@ VkExtent2D Swapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
     {
         VkExtent2D actualExtent =
         {
-            m_components.window->windowInfo.width,
-            m_components.window->windowInfo.height
+            m_components.pWindow->windowInfo.width,
+            m_components.pWindow->windowInfo.height
         };
 
         actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));

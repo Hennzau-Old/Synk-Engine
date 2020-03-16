@@ -17,7 +17,11 @@ class Instance
 
         struct InstanceInfo
         {
+            std::string           appName         = "noName";
+            std::string           engineName      = "No Engine";
 
+            uint32_t              appVersion      = VK_MAKE_VERSION(0, 0, 0);
+            uint32_t              engineVersion   = VK_MAKE_VERSION(0, 0, 0);
         };
 
     public:
@@ -62,7 +66,7 @@ class Instance
 
         /* functions */
 
-        int                       createInstance(const InstanceCreateInfo& createInfo);
+        int                       createInstance();
         const char**              getExtensions(uint32_t& extensionCount);
 
         bool                      checkValidationLayerSupport();

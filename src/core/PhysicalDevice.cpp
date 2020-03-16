@@ -1,4 +1,5 @@
 #include "core/PhysicalDevice.h"
+#include "core/Swapchain.h"
 
 PhysicalDevice::PhysicalDevice()
 {
@@ -17,8 +18,8 @@ void PhysicalDevice::clean()
 
 void PhysicalDevice::setData(const PhysicalDeviceCreateInfo& createInfo)
 {
-    m_components.instance = createInfo.instance;
-    m_components.surface  = createInfo.surface;
+    m_components.pInstance = createInfo.pInstance;
+    m_components.pSurface  = createInfo.pSurface;
 }
 
 uint32_t PhysicalDevice::ratePhysicalDeviceSuitability(const VkPhysicalDevice& physicalDevice)
@@ -28,7 +29,7 @@ uint32_t PhysicalDevice::ratePhysicalDeviceSuitability(const VkPhysicalDevice& p
     QueueFamilyIndices          indices;
 
     bool                        extensionsSupported   = false;
-    bool                        swapChainAdequate     = false;
+    bool                        swapchainAdequate     = false;
 
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
     vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
@@ -36,12 +37,12 @@ uint32_t PhysicalDevice::ratePhysicalDeviceSuitability(const VkPhysicalDevice& p
 
     extensionsSupported   = checkDeviceExtensionSupport(physicalDevice);
 
-    // if (extensionsSupported)
-    // {
-    //     SwapChain::SwapChainSupportDetails swapChainSupport = SwapChain::querySwapCainSupport(physicalDevice, m_info.surface->getSurface());
-    //
-    //     swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
-    // }
+    if (extensionsSupported)
+    {
+        Swapchain::SwapchainSupportDetails swapchainSupport = Swapchain::querySwapchainSupportDetails(physicalDevice, m_components.pSurface->getSurface());
+
+        swapchainAdequate = !swapchainSupport.formats.empty() && !swapchainSupport.presentModes.empty();
+    }
 
     uint32_t score = 0;
 
@@ -58,7 +59,7 @@ uint32_t PhysicalDevice::ratePhysicalDeviceSuitability(const VkPhysicalDevice& p
         if (!deviceFeatures.geometryShader)   score = 0;
         if (!indices.isComplete())            score = 0;
         if (!extensionsSupported)             score = 0;
-        // if (!swapChainAdequate)               score = 0;
+        if (!swapchainAdequate)               score = 0;
 
     return score;
 }
@@ -93,7 +94,7 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(const VkPhy
         }
 
         VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, m_components.surface->getSurface(), &presentSupport);
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, m_components.pSurface->getSurface(), &presentSupport);
 
         if (presentSupport)
         {
@@ -129,10 +130,10 @@ bool PhysicalDevice::checkDeviceExtensionSupport(const VkPhysicalDevice& physica
     return requiredExtensions.empty();
 }
 
-int PhysicalDevice::createPhysicalDevice(const PhysicalDeviceCreateInfo& createInfo)
+int PhysicalDevice::createPhysicalDevice()
 {
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(m_components.instance->getInstance(), &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(m_components.pInstance->getInstance(), &deviceCount, nullptr);
 
     if (deviceCount == 0)
     {
@@ -140,7 +141,7 @@ int PhysicalDevice::createPhysicalDevice(const PhysicalDeviceCreateInfo& createI
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(m_components.instance->getInstance(), &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(m_components.pInstance->getInstance(), &deviceCount, devices.data());
 
     std::multimap<uint32_t, VkPhysicalDevice> candidates;
 
@@ -168,5 +169,5 @@ int PhysicalDevice::createPhysicalDevice(PhysicalDevice* physicalDevice, const P
 {
     physicalDevice->setData(createInfo);
 
-    return physicalDevice->createPhysicalDevice(createInfo);
+    return physicalDevice->createPhysicalDevice();
 }

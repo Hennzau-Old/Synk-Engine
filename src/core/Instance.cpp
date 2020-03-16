@@ -19,10 +19,13 @@ void Instance::clean()
 
 void Instance::setData(const InstanceCreateInfo& createInfo)
 {
-
+    instanceInfo.appName        = createInfo.appName;
+    instanceInfo.engineName     = createInfo.engineName;
+    instanceInfo.appVersion     = createInfo.appVersion;
+    instanceInfo.engineVersion  = createInfo.engineVersion;
 }
 
-int Instance::createInstance(const InstanceCreateInfo& createInfo)
+int Instance::createInstance()
 {
     if (enabledValidationLayers && !checkValidationLayerSupport())
     {
@@ -31,10 +34,10 @@ int Instance::createInstance(const InstanceCreateInfo& createInfo)
 
     VkApplicationInfo appInfo   = {};
     appInfo.sType               = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName    = createInfo.appName.c_str();
-    appInfo.applicationVersion  = createInfo.appVersion;
-    appInfo.pEngineName         = createInfo.engineName.c_str();
-    appInfo.engineVersion       = createInfo.engineVersion;
+    appInfo.pApplicationName    = instanceInfo.appName.c_str();
+    appInfo.applicationVersion  = instanceInfo.appVersion;
+    appInfo.pEngineName         = instanceInfo.engineName.c_str();
+    appInfo.engineVersion       = instanceInfo.engineVersion;
     appInfo.apiVersion          = VK_API_VERSION_1_0;
 
     uint32_t extensionCount = 0;
@@ -104,5 +107,5 @@ int Instance::createInstance(Instance* instance, const InstanceCreateInfo& creat
 {
     instance->setData(createInfo);
 
-    return instance->createInstance(createInfo);
+    return instance->createInstance();
 }
