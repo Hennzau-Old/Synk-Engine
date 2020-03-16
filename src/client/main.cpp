@@ -1,19 +1,15 @@
 #include <iostream>
 
-#include "core/Window.h"
-#include "core/Instance.h"
-#include "core/Surface.h"
-#include "core/PhysicalDevice.h"
-#include "core/LogicalDevice.h"
+#include "core/utils/File.h"
+
+#include "core/CoreComponents.h"
+#include "core/rendering/Scene.h"
 
 const int 				FRAME_CAP = 6666;
 const int 				TICK_CAP = 60;
 
-Window              window;
-Instance            instance;
-Surface             surface;
-PhysicalDevice      physicalDevice;
-LogicalDevice       logicalDevice;
+CoreComponents  coreComponents;
+Scene           scene;
 
 void init()
 {
@@ -23,68 +19,44 @@ void init()
     windowCreateInfo.resizable                = GLFW_FALSE;
     windowCreateInfo.title                    = "Synk Vulkan Engine";
 
-    if(Window::createWindow(&window, windowCreateInfo) != 0)
+    CoreComponents::CoreComponentsCreateInfo coreComponentsCreateInfo = {};
+    coreComponentsCreateInfo.windowCreateInfo                         = windowCreateInfo;
+    coreComponentsCreateInfo.imageUsage                               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+    if (CoreComponents::createCoreComponents(&coreComponents, coreComponentsCreateInfo) != 0)
     {
-        Logger::printError("main::init", "createWindow failed!");
-    } else
-    {
-        Logger::printSuccess("main::init", "createWindow succeed!");
+        Logger::printError("main::init", "createCoreComponents failed!");
     }
 
-    Instance::InstanceCreateInfo instanceCreateInfo = {};
-    instanceCreateInfo.appName                      = "Synk Vulkan Engine";
-    instanceCreateInfo.engineName                   = "No Engine";
-    instanceCreateInfo.appVersion                   = VK_MAKE_VERSION(0, 0, 1);
-    instanceCreateInfo.engineVersion                = VK_MAKE_VERSION(0, 0, 1);
+    RenderPass::RenderPassCreateInfo renderPassCreateInfo = {};
+    renderPassCreateInfo.format                           = coreComponents.getSwapchain()->getImageFormat();
+    renderPassCreateInfo.samples                          = VK_SAMPLE_COUNT_1_BIT;
+    renderPassCreateInfo.loadOp                           = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    renderPassCreateInfo.storeOp                          = VK_ATTACHMENT_STORE_OP_STORE;
+    renderPassCreateInfo.stencilLoadOp                    = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    renderPassCreateInfo.stencilStoreOp                   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    renderPassCreateInfo.initialLayout                    = VK_IMAGE_LAYOUT_UNDEFINED;
+    renderPassCreateInfo.finalLayout                      = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-    if (Instance::createInstance(&instance, instanceCreateInfo) != 0)
-    {
-        Logger::printError("main::init", "createInstance failed!");
-    } else
-    {
-        Logger::printSuccess("main::init", "createInstance succeed!");
-    }
+    Shader::ShaderCreateInfo shaderCreateInfo = {};
+    shaderCreateInfo.vertexShaderCode         = File::readFile("res/shaders/spir-v/main.vert");
+    shaderCreateInfo.fragmentShaderCode       = File::readFile("res/shaders/spir-v/main.frag");
 
-    Surface::SurfaceCreateInfo surfaceCreateInfo  = {};
-    surfaceCreateInfo.pInstance                   = &instance;
-    surfaceCreateInfo.pWindow                     = &window;
+    Scene::SceneCreateInfo sceneCreateInfo  = {};
+    sceneCreateInfo.pCoreComponents         = &coreComponents;
+    sceneCreateInfo.renderPassCreateInfo    = renderPassCreateInfo;
+    sceneCreateInfo.shaderCreateInfo        = shaderCreateInfo;
+    sceneCreateInfo.name                    = "main";
 
-    if (Surface::createSurface(&surface, surfaceCreateInfo) != 0)
+    if (Scene::createScene(&scene, sceneCreateInfo) != 0)
     {
-        Logger::printError("main::init", "createSurface failed!");
-    } else
-    {
-        Logger::printSuccess("main::init", "createSurface succeed!");
-    }
-
-    PhysicalDevice::PhysicalDeviceCreateInfo physicalDeviceCreateInfo = {};
-    physicalDeviceCreateInfo.pInstance                                = &instance;
-    physicalDeviceCreateInfo.pSurface                                 = &surface;
-
-    if (PhysicalDevice::createPhysicalDevice(&physicalDevice, physicalDeviceCreateInfo) != 0)
-    {
-        Logger::printError("main::init", "createPhysicalDevice failed!");
-    } else
-    {
-        Logger::printSuccess("main::init", "createPhysicalDevice succeed!");
-    }
-
-    LogicalDevice::LogicalDeviceCreateInfo logicalDeviceCreateInfo  = {};
-    logicalDeviceCreateInfo.pInstance                               = &instance;
-    logicalDeviceCreateInfo.pPhysicalDevice                         = &physicalDevice;
-
-    if (LogicalDevice::createLogicalDevice(&logicalDevice, logicalDeviceCreateInfo) != 0)
-    {
-        Logger::printError("main::init", "createLogicalDevice failed!");
-    } else
-    {
-        Logger::printSuccess("main::init", "createLogicalDevice succeed!");
+        Logger::printError("main::init", "createScene failed!");
     }
 }
 
 void update()
 {
-    window.update();
+    coreComponents.getWindow()->update();
 }
 
 void render()
@@ -94,11 +66,8 @@ void render()
 
 void clean()
 {
-    logicalDevice.clean();
-    physicalDevice.clean();
-    surface.clean();
-    instance.clean();
-    window.clean();
+    scene.clean();
+    coreComponents.clean();
 }
 
 int main()
@@ -119,7 +88,7 @@ int main()
     int     frames          = 0,
             ticks           = 0;
 
-    while(!window.isClosed())
+    while(!coreComponents.getWindow()->isClosed())
     {
         nowTime = glfwGetTime();
         deltaTime += (nowTime - lastTickTime) / tickTime;

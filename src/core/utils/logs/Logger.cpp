@@ -13,9 +13,9 @@ void Logger::init(const std::string& text)
 void Logger::exit(const std::string& text)
 {
     tabNumber--;
+
     printTab();
     std::cout << MAGENTA << "------------[/" << BOLDMAGENTA << text << MAGENTA << "/]------------" << RESET << "\n";
-
 }
 
 void Logger::printText(const std::string& prefix, const std::string& text)
