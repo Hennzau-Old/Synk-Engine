@@ -42,10 +42,66 @@ void init()
     shaderCreateInfo.vertexShaderCode         = File::readFile("res/shaders/spir-v/main.vert");
     shaderCreateInfo.fragmentShaderCode       = File::readFile("res/shaders/spir-v/main.frag");
 
+
+    /*vertex binding */
+
+    VkVertexInputBindingDescription vertexBindingDescription  = {};
+    vertexBindingDescription.binding                          = 0;
+    vertexBindingDescription.stride                           = 7 * sizeof(float);
+    vertexBindingDescription.inputRate                        = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    /* attributs description */
+
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+    attributeDescriptions.resize(2);
+
+    attributeDescriptions[0].binding                                          = 0;
+    attributeDescriptions[0].location                                         = 0;
+    attributeDescriptions[0].format                                           = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[0].offset                                           = 0.0f;     //offset of vertex positions
+
+    attributeDescriptions[1].binding                                          = 0;
+    attributeDescriptions[1].location                                         = 1;
+    attributeDescriptions[1].format                                           = VK_FORMAT_R32G32B32A32_SFLOAT;
+    attributeDescriptions[1].offset                                           = 3 * sizeof(float);     //offset of colors
+
+    /* shaders */
+
+    Pipeline::RasterizationInfo rasterizationInfo = {};
+    rasterizationInfo.polygonMode                 = VK_POLYGON_MODE_FILL;
+    rasterizationInfo.cullMode                    = VK_CULL_MODE_FRONT_BIT;
+    rasterizationInfo.frontFace                   = VK_FRONT_FACE_CLOCKWISE;
+    rasterizationInfo.lineWidth                   = 1.0f;
+
+    Pipeline::VertexInputInfo vertexInputInfo   = {};
+    vertexInputInfo.vertexBindingDescription    = vertexBindingDescription;
+    vertexInputInfo.vertexAttributeDescriptions = attributeDescriptions;
+
+    std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings(1);
+
+    /* UBO */
+
+    descriptorSetLayoutBindings[0].binding            = 0;
+    descriptorSetLayoutBindings[0].descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorSetLayoutBindings[0].descriptorCount    = 1;
+    descriptorSetLayoutBindings[0].stageFlags         = VK_SHADER_STAGE_VERTEX_BIT;
+    descriptorSetLayoutBindings[0].pImmutableSamplers = nullptr;
+
+    Pipeline::DescriptorSetLayoutInfo descriptorsInfo = {};
+    descriptorsInfo.descriptors                       = descriptorSetLayoutBindings;
+
+    Pipeline::PipelineCreateInfo pipelineCreateInfo = {};
+    pipelineCreateInfo.rasterizationInfo            = rasterizationInfo;
+    pipelineCreateInfo.vertexInputInfo              = vertexInputInfo;
+    pipelineCreateInfo.descriptorsInfo              = descriptorsInfo;
+
+    /* scene */
+
     Scene::SceneCreateInfo sceneCreateInfo  = {};
     sceneCreateInfo.pCoreComponents         = &coreComponents;
     sceneCreateInfo.renderPassCreateInfo    = renderPassCreateInfo;
     sceneCreateInfo.shaderCreateInfo        = shaderCreateInfo;
+    sceneCreateInfo.pipelineCreateInfo      = pipelineCreateInfo;
     sceneCreateInfo.name                    = "main";
 
     if (Scene::createScene(&scene, sceneCreateInfo) != 0)

@@ -57,6 +57,8 @@ class Framebuffer
 
         static int                createFramebuffer(Framebuffer* framebuffer, const FramebufferCreateInfo& createInfo);
 
+        inline VkFramebuffer&     getFramebuffer() { return m_framebuffer; }
+
         /* variables */
 
         FramebufferInfo           framebufferInfo;

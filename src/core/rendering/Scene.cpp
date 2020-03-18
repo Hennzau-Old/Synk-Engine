@@ -14,6 +14,10 @@ void Scene::clean()
 {
     Logger::init("_____CLEAN_RENDER_____");
 
+    m_commandPool.freeCommandbuffers(m_commandbuffers);
+    m_commandPool.clean();
+
+    m_pipeline.clean();
     m_shader.clean();
 
     for (auto framebuffer : m_framebuffers)
@@ -32,6 +36,7 @@ void Scene::setData(const SceneCreateInfo& createInfo)
 
     sceneInfo.renderPassCreateInfo  = createInfo.renderPassCreateInfo;
     sceneInfo.shaderCreateInfo      = createInfo.shaderCreateInfo;
+    sceneInfo.pipelineCreateInfo    = createInfo.pipelineCreateInfo;
     sceneInfo.name                  = createInfo.name;
 }
 
@@ -108,6 +113,63 @@ int Scene::createShader()
     return 0;
 }
 
+int Scene::createPipeline()
+{
+    sceneInfo.pipelineCreateInfo.pLogicalDevice = m_components.pCoreComponents->getLogicalDevice();
+    sceneInfo.pipelineCreateInfo.pSwapchain     = m_components.pCoreComponents->getSwapchain();
+    sceneInfo.pipelineCreateInfo.pShader        = &m_shader;
+    sceneInfo.pipelineCreateInfo.pRenderPass    = &m_renderPass;
+
+    if (Pipeline::createPipeline(&m_pipeline, sceneInfo.pipelineCreateInfo) != 0)
+    {
+        Logger::printError("Scene::createPipeline", "createPipeline failed!");
+
+        return 1;
+    } else
+    {
+        Logger::printSuccess("Scene::createPipeline", "createPipeline succeed!");
+    }
+
+    return 0;
+}
+
+int Scene::createCommandPool()
+{
+    CommandPool::CommandPoolCreateInfo commandPoolCreateInfo  = {};
+    commandPoolCreateInfo.pPhysicalDevice                     = m_components.pCoreComponents->getPhysicalDevice();
+    commandPoolCreateInfo.pLogicalDevice                      = m_components.pCoreComponents->getLogicalDevice();
+    commandPoolCreateInfo.queueFamilyIndex                    = m_components.pCoreComponents->getPhysicalDevice()->getQueueFamilies().graphicsFamily.value();
+
+    if (CommandPool::createCommandPool(&m_commandPool, commandPoolCreateInfo) != 0)
+    {
+        Logger::printError("Scene::createCommandPool", "createCommandPool failed!");
+
+        return 1;
+    } else
+    {
+        Logger::printSuccess("Scene::createCommandPool", "createCommandPool succeed!");
+    }
+
+    return 0;
+}
+
+int Scene::createCommandbuffers()
+{
+    m_commandbuffers.resize(m_components.pCoreComponents->getSwapchain()->getImageViews().size());
+
+    if (m_commandPool.allocateCommandbuffers(m_commandbuffers) != 0)
+    {
+        Logger::printError("Scene::createCommandbuffers", "allocateCommandbuffers failed!");
+
+        return 1;
+    } else
+    {
+        Logger::printSuccess("Scene::createCommandbuffers", "allocateCommandbuffers succeed!");
+    }
+
+    return 0;
+}
+
 int Scene::endCreation()
 {
     Logger::exit("_____SCENE[" + sceneInfo.name + "]_____");
@@ -121,8 +183,11 @@ int Scene::createScene(Scene* scene, const SceneCreateInfo& createInfo)
 
     Logger::init("_____SCENE[" + createInfo.name + "]_____");
 
-    return  scene->createRenderPass()   +
-            scene->createFramebuffers() +
-            scene->createShader()       +
+    return  scene->createRenderPass()     +
+            scene->createFramebuffers()   +
+            scene->createShader()         +
+            scene->createPipeline()       +
+            scene->createCommandPool()    +
+            scene->createCommandbuffers() +
             scene->endCreation();
 }
