@@ -8,8 +8,6 @@
 #include "core/PhysicalDevice.h"
 #include "core/LogicalDevice.h"
 
-#include "core/rendering/buffers/Commandbuffer.h"
-
 class CommandPool
 {
     private:
@@ -51,9 +49,6 @@ class CommandPool
 
         void                      clean();
         void                      setData(const CommandPoolCreateInfo& createInfo);
-
-        int                       allocateCommandbuffers(std::vector<Commandbuffer>& commandbuffers);
-        void                      freeCommandbuffers(std::vector<Commandbuffer>& commandbuffers);
 
         static int                createCommandPool(CommandPool* commandPool, const CommandPoolCreateInfo& createInfo);
 

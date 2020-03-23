@@ -69,7 +69,7 @@ class Swapchain
         static int                      createSwapchain(Swapchain* swapchain, const SwapchainCreateInfo& createInfo);
         static SwapchainSupportDetails  querySwapchainSupportDetails(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
 
-        inline VkSwapchainKHR&          getSwapChain() { return m_swapchain; }
+        inline VkSwapchainKHR&          getSwapchain() { return m_swapchain; }
 
         inline VkSurfaceFormatKHR&      getSurfaceFormat() { return m_surfaceFormat; }
         inline VkFormat&                getImageFormat  () { return m_imageFormat; }

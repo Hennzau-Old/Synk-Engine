@@ -14,7 +14,9 @@ void Scene::clean()
 {
     Logger::init("_____CLEAN_RENDER_____");
 
-    m_commandPool.freeCommandbuffers(m_commandbuffers);
+    m_submit.clean();
+
+    m_commandBuffers.clean();
     m_commandPool.clean();
 
     m_pipeline.clean();
@@ -37,7 +39,48 @@ void Scene::setData(const SceneCreateInfo& createInfo)
     sceneInfo.renderPassCreateInfo  = createInfo.renderPassCreateInfo;
     sceneInfo.shaderCreateInfo      = createInfo.shaderCreateInfo;
     sceneInfo.pipelineCreateInfo    = createInfo.pipelineCreateInfo;
+    sceneInfo.drawFunction          = createInfo.drawFunction;
     sceneInfo.name                  = createInfo.name;
+}
+
+void Scene::resize()
+{
+    m_components.pCoreComponents->getLogicalDevice()->wait();
+
+    for (auto framebuffer : m_framebuffers)
+    {
+        framebuffer.clean();
+    }
+
+    m_commandBuffers.clean();
+    m_pipeline.clean();
+    m_renderPass.clean();
+
+    m_components.pCoreComponents->getSwapchain()->clean();
+
+    Swapchain::SwapchainCreateInfo swapchainCreateInfo  = {};
+    swapchainCreateInfo.pWindow                         = m_components.pCoreComponents->getWindow();
+    swapchainCreateInfo.pSurface                        = m_components.pCoreComponents->getSurface();
+    swapchainCreateInfo.pPhysicalDevice                 = m_components.pCoreComponents->getPhysicalDevice();
+    swapchainCreateInfo.pLogicalDevice                  = m_components.pCoreComponents->getLogicalDevice();
+    swapchainCreateInfo.imageUsage                      = m_components.pCoreComponents->getSwapchain()->swapchainInfo.imageUsage;
+
+    if (Swapchain::createSwapchain(m_components.pCoreComponents->getSwapchain(), swapchainCreateInfo) != 0)
+    {
+        Logger::printError("Scene::resize", "createSwapchain failed!");
+    }
+
+    if (createRenderPass() + createPipeline() + createFramebuffers() + createCommandBuffers() != 0)
+    {
+        Logger::printError("Scene::resize", "reCreateComponents failed!");
+    }
+
+    sceneInfo.drawFunction(&m_commandBuffers);
+}
+
+void Scene::render()
+{
+    m_submit.submit(&m_commandBuffers);
 }
 
 int Scene::createRenderPass()
@@ -153,18 +196,41 @@ int Scene::createCommandPool()
     return 0;
 }
 
-int Scene::createCommandbuffers()
+int Scene::createCommandBuffers()
 {
-    m_commandbuffers.resize(m_components.pCoreComponents->getSwapchain()->getImageViews().size());
+    CommandBuffers::CommandBuffersCreateInfo commandBuffersCreateInfo = {};
+    commandBuffersCreateInfo.pFramebuffers                            = &m_framebuffers;
+    commandBuffersCreateInfo.pLogicalDevice                           = m_components.pCoreComponents->getLogicalDevice();
+    commandBuffersCreateInfo.pSwapchain                               = m_components.pCoreComponents->getSwapchain();
+    commandBuffersCreateInfo.pCommandPool                             = &m_commandPool;
 
-    if (m_commandPool.allocateCommandbuffers(m_commandbuffers) != 0)
+    if (CommandBuffers::createCommandBuffers(&m_commandBuffers, commandBuffersCreateInfo) != 0)
     {
-        Logger::printError("Scene::createCommandbuffers", "allocateCommandbuffers failed!");
+        Logger::printError("Scene::createCommandBuffers", "createCommandBuffers failed!");
 
         return 1;
     } else
     {
-        Logger::printSuccess("Scene::createCommandbuffers", "allocateCommandbuffers succeed!");
+        Logger::printSuccess("Scene::createCommandBuffers", "createCommandBuffers succeed!");
+    }
+
+    return 0;
+}
+
+int Scene::createSubmit()
+{
+    Submit::SubmitCreateInfo submitCreateInfo = {};
+    submitCreateInfo.pWindow                  = m_components.pCoreComponents->getWindow();
+    submitCreateInfo.pLogicalDevice           = m_components.pCoreComponents->getLogicalDevice();
+    submitCreateInfo.pSwapchain               = m_components.pCoreComponents->getSwapchain();
+    submitCreateInfo.pScene                   = this;
+
+    if (Submit::createSubmit(&m_submit, submitCreateInfo) != 0)
+    {
+        Logger::printError("Scene::createSubmit", "createSubmit failed!");
+    } else
+    {
+        Logger::printSuccess("Scene::createSubmit", "createSubmit succeed!");
     }
 
     return 0;
@@ -188,6 +254,7 @@ int Scene::createScene(Scene* scene, const SceneCreateInfo& createInfo)
             scene->createShader()         +
             scene->createPipeline()       +
             scene->createCommandPool()    +
-            scene->createCommandbuffers() +
+            scene->createCommandBuffers() +
+            scene->createSubmit()         +
             scene->endCreation();
 }

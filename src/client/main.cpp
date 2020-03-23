@@ -4,12 +4,86 @@
 
 #include "core/CoreComponents.h"
 #include "core/rendering/Scene.h"
+#include "core/rendering/Mesh.h"
 
 const int 				FRAME_CAP = 6666;
 const int 				TICK_CAP = 60;
 
 CoreComponents  coreComponents;
 Scene           scene;
+
+Mesh test;
+
+void render(CommandBuffers* commandBuffers)
+{
+    CommandPool transferCommandPool;
+
+    CommandPool::CommandPoolCreateInfo transferCommandPoolcreateInfo  = {};
+    transferCommandPoolcreateInfo.pPhysicalDevice                     = coreComponents.getPhysicalDevice();
+    transferCommandPoolcreateInfo.pLogicalDevice                      = coreComponents.getLogicalDevice();
+    transferCommandPoolcreateInfo.queueFamilyIndex                    = coreComponents.getPhysicalDevice()->getQueueFamilies().transferFamily.value();
+
+    if (CommandPool::createCommandPool(&transferCommandPool, transferCommandPoolcreateInfo) != 0)
+    {
+        Logger::printError("adazdazdazda", "azudadhaidhaidaidhai");
+    }
+
+    std::vector<float> vertices =
+    {
+        -1.0f, +0.0f, 0.0f,    1.0f, 0.0f, 0.0f, 1.0f,
+        +0.0f, -1.0f, 0.0f,    0.0f, 1.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
+        +0.0f, +0.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
+
+        +1.0f, +0.0f, 0.0f,    0.0f, 1.0f, 0.0f, 1.0f,
+        -0.0f, +1.0f, 0.0f,    1.0f, 0.0f, 0.0f, 1.0f,
+        +1.0f, +1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
+        +0.0f, +0.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
+    };
+
+    std::vector<uint16_t> indices =
+    {
+        0, 1, 2,
+        0, 3, 1,
+
+        4, 5, 6,
+        4, 7, 5,
+    };
+
+    Mesh::MeshCreateInfo meshCreateInfo = {};
+    meshCreateInfo.pPhysicalDevice      = coreComponents.getPhysicalDevice();
+    meshCreateInfo.pLogicalDevice       = coreComponents.getLogicalDevice();
+    meshCreateInfo.pCommandPool         = &transferCommandPool;
+    meshCreateInfo.vertices             = vertices;
+    meshCreateInfo.indices              = indices;
+
+    if (Mesh::createMesh(&test, meshCreateInfo) != 0)
+    {
+        Logger::printError("Cazdj", "izauda");
+    }
+
+    transferCommandPool.clean();
+
+    std::vector<VkBuffer> vertexBuffers =
+    {
+        test.getVertexBuffer().getBuffer()
+    };
+
+    for (size_t i = 0; i < coreComponents.getSwapchain()->getImageViews().size(); i++)
+    {
+        commandBuffers->beginCommandBuffers(i);
+            commandBuffers->beginRenderPass(i, scene.getRenderPass());
+
+                commandBuffers->bindPipeline(i, scene.getPipeline());
+
+                commandBuffers->bindVertexBuffer(i, vertexBuffers);
+                commandBuffers->bindIndexBuffer(i, test.getIndexBuffer().getBuffer());
+                commandBuffers->draw(i, 12);
+
+            commandBuffers->endRenderPass(i);
+        commandBuffers->endCommandBuffers(i);
+    }
+}
 
 void init()
 {
@@ -102,12 +176,15 @@ void init()
     sceneCreateInfo.renderPassCreateInfo    = renderPassCreateInfo;
     sceneCreateInfo.shaderCreateInfo        = shaderCreateInfo;
     sceneCreateInfo.pipelineCreateInfo      = pipelineCreateInfo;
+    sceneCreateInfo.drawFunction            = render;
     sceneCreateInfo.name                    = "main";
 
     if (Scene::createScene(&scene, sceneCreateInfo) != 0)
     {
         Logger::printError("main::init", "createScene failed!");
     }
+
+    render(scene.getCommandBuffers());
 }
 
 void update()
@@ -117,11 +194,15 @@ void update()
 
 void render()
 {
-
+    scene.render();
 }
 
 void clean()
 {
+    coreComponents.getLogicalDevice()->wait();
+    
+    test.clean();
+
     scene.clean();
     coreComponents.clean();
 }

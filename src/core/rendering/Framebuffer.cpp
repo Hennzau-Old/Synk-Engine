@@ -51,7 +51,7 @@ int Framebuffer::createFramebuffer()
 
         return 1;
     }
-
+    
     return 0;
 }
 

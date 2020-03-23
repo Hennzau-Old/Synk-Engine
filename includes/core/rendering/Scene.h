@@ -11,10 +11,17 @@
 #include "core/rendering/Shader.h"
 #include "core/rendering/Pipeline.h"
 #include "core/rendering/CommandPool.h"
-#include "core/rendering/buffers/Commandbuffer.h"
+#include "core/rendering/buffers/CommandBuffers.h"
+#include "core/rendering/Submit.h"
 
 class Scene
 {
+    public:
+
+        /* static variables */
+
+        typedef void (*FnPtr) (CommandBuffers* commandBuffers);
+
     private:
 
         /* private structures */
@@ -24,6 +31,8 @@ class Scene
             RenderPass::RenderPassCreateInfo  renderPassCreateInfo;
             Shader::ShaderCreateInfo          shaderCreateInfo;
             Pipeline::PipelineCreateInfo      pipelineCreateInfo;
+
+            FnPtr                             drawFunction;
 
             std::string                       name;
         };
@@ -38,8 +47,6 @@ class Scene
 
         /* static variables */
 
-
-
         /* structure */
 
         struct SceneCreateInfo
@@ -50,6 +57,8 @@ class Scene
             Shader::ShaderCreateInfo          shaderCreateInfo;
             Pipeline::PipelineCreateInfo      pipelineCreateInfo;
 
+            FnPtr                             drawFunction;
+
             std::string                       name;
         };
 
@@ -58,33 +67,39 @@ class Scene
         Scene();
         ~Scene();
 
-        void                      clean();
-        void                      setData(const SceneCreateInfo& createInfo);
+        void                                clean();
+        void                                setData(const SceneCreateInfo& createInfo);
 
-        static int                createScene(Scene* scene, const SceneCreateInfo& createInfo);
+        void                                resize();
 
-        inline RenderPass&                  getRenderPass     () { return m_renderPass;     }
-        inline std::vector<Framebuffer>&    getFramebuffers   () { return m_framebuffers;   }
-        inline Shader&                      getShader         () { return m_shader;         }
-        inline Pipeline&                    getPipeline       () { return m_pipeline;       }
-        inline CommandPool&                 getCommandPool    () { return m_commandPool;    }
-        inline std::vector<Commandbuffer>&  getCommandbuffers () { return m_commandbuffers; }
+        void                                render();
+
+        static int                          createScene(Scene* scene, const SceneCreateInfo& createInfo);
+
+        inline RenderPass*                  getRenderPass     () { return &m_renderPass;      }
+        inline std::vector<Framebuffer>*    getFramebuffers   () { return &m_framebuffers;    }
+        inline Shader*                      getShader         () { return &m_shader;          }
+        inline Pipeline*                    getPipeline       () { return &m_pipeline;        }
+        inline CommandPool*                 getCommandPool    () { return &m_commandPool;     }
+        inline CommandBuffers*              getCommandBuffers () { return &m_commandBuffers;  }
+        inline Submit*                      getSubmit         () { return &m_submit;          }
 
         /* variables */
 
-        SceneInfo                 sceneInfo;
+        SceneInfo                           sceneInfo;
 
     private:
 
         /* functions */
 
-        int                       createRenderPass();
-        int                       createFramebuffers();
-        int                       createShader();
-        int                       createPipeline();
-        int                       createCommandPool();
-        int                       createCommandbuffers();
-        int                       endCreation();
+        int                                 createRenderPass();
+        int                                 createFramebuffers();
+        int                                 createShader();
+        int                                 createPipeline();
+        int                                 createCommandPool();
+        int                                 createCommandBuffers();
+        int                                 createSubmit();
+        int                                 endCreation();
 
         /* variables */
 
@@ -93,5 +108,6 @@ class Scene
         Shader                      m_shader;
         Pipeline                    m_pipeline;
         CommandPool                 m_commandPool;
-        std::vector<Commandbuffer>  m_commandbuffers;
+        CommandBuffers              m_commandBuffers;
+        Submit                      m_submit;
 };

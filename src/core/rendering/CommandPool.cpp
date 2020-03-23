@@ -25,29 +25,6 @@ void CommandPool::setData(const CommandPoolCreateInfo& createInfo)
     commandPoolInfo.queueFamilyIndex  = createInfo.queueFamilyIndex;
 }
 
-int CommandPool::allocateCommandbuffers(std::vector<Commandbuffer>& commandbuffers)
-{
-    VkCommandBufferAllocateInfo commandBufferAllocInfo  = {};
-    commandBufferAllocInfo.sType                        = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    commandBufferAllocInfo.commandPool                  = m_commandPool;
-    commandBufferAllocInfo.level                        = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    commandBufferAllocInfo.commandBufferCount           = (uint32_t) commandbuffers.size();
-
-    if (vkAllocateCommandBuffers(m_components.pLogicalDevice->getLogicalDevice(), &commandBufferAllocInfo, &commandbuffers.data()->getCommandbuffer()) != VK_SUCCESS)
-    {
-        Logger::printError("CommandBuffers::createCommandBuffers", "vkAllocateCommandBuffers failed!");
-
-        return 1;
-    }
-
-    return 0;
-}
-
-void CommandPool::freeCommandbuffers(std::vector<Commandbuffer>& commandbuffers)
-{
-    vkFreeCommandBuffers(m_components.pLogicalDevice->getLogicalDevice(), m_commandPool, static_cast<uint32_t>(commandbuffers.size()), &commandbuffers.data()->getCommandbuffer());
-}
-
 int CommandPool::createCommandPool()
 {
     VkCommandPoolCreateInfo commandPoolCreateInfo = {};
