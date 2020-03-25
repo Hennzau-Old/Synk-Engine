@@ -1,0 +1,57 @@
+#pragma once
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+#include "core/utils/logs/Logger.h"
+
+class [name]
+{
+    private:
+
+        /* private structures */
+
+        struct [name]Info
+        {
+
+        };
+
+        struct [name]Components
+        {
+
+        } m_components;
+
+    public:
+
+        /* static variables */
+
+
+
+        /* structure */
+
+        struct [name]CreateInfo
+        {
+
+        };
+
+        /* functions */
+
+        [name]();
+        ~[name]();
+
+        void                      clean();
+        void                      setData(const [name]CreateInfo& createInfo);
+
+        static int                create[name]([name]* [nameb], const [name]CreateInfo& createInfo);
+
+        /* variables */
+
+        [name]Info                [nameb]Info;
+
+    private:
+
+        /* functions */
+
+        /* variables */
+
+};

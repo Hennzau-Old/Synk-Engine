@@ -1,0 +1,46 @@
+#pragma once
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include "core/utils/logs/Logger.h"
+
+class [name]
+{
+    public:
+
+        /* static variables */
+
+
+
+        /* structure */
+
+        struct [name]Info
+        {
+
+        };
+
+        /* functions */
+
+        [name]();
+        ~[name]();
+
+        void                      clean();
+        void                      setInfo(const [name]Info& info);
+
+        static int                create[name]([name]* [nameb], const [name]Info& info);
+
+        [name]Info&               getInfo();
+
+        /* variables */
+
+    private:
+
+        /* structure */
+
+        /* functions */
+
+        /* variables */
+
+        [name]Info                m_info;
+};

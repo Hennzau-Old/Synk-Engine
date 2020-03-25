@@ -16,54 +16,6 @@ Mesh test;
 
 void render(CommandBuffers* commandBuffers)
 {
-    CommandPool transferCommandPool;
-
-    CommandPool::CommandPoolCreateInfo transferCommandPoolcreateInfo  = {};
-    transferCommandPoolcreateInfo.pPhysicalDevice                     = coreComponents.getPhysicalDevice();
-    transferCommandPoolcreateInfo.pLogicalDevice                      = coreComponents.getLogicalDevice();
-    transferCommandPoolcreateInfo.queueFamilyIndex                    = coreComponents.getPhysicalDevice()->getQueueFamilies().transferFamily.value();
-
-    if (CommandPool::createCommandPool(&transferCommandPool, transferCommandPoolcreateInfo) != 0)
-    {
-        Logger::printError("adazdazdazda", "azudadhaidhaidaidhai");
-    }
-
-    std::vector<float> vertices =
-    {
-        -1.0f, +0.0f, 0.0f,    1.0f, 0.0f, 0.0f, 1.0f,
-        +0.0f, -1.0f, 0.0f,    0.0f, 1.0f, 0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
-        +0.0f, +0.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
-
-        +1.0f, +0.0f, 0.0f,    0.0f, 1.0f, 0.0f, 1.0f,
-        -0.0f, +1.0f, 0.0f,    1.0f, 0.0f, 0.0f, 1.0f,
-        +1.0f, +1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
-        +0.0f, +0.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
-    };
-
-    std::vector<uint16_t> indices =
-    {
-        0, 1, 2,
-        0, 3, 1,
-
-        4, 5, 6,
-        4, 7, 5,
-    };
-
-    Mesh::MeshCreateInfo meshCreateInfo = {};
-    meshCreateInfo.pPhysicalDevice      = coreComponents.getPhysicalDevice();
-    meshCreateInfo.pLogicalDevice       = coreComponents.getLogicalDevice();
-    meshCreateInfo.pCommandPool         = &transferCommandPool;
-    meshCreateInfo.vertices             = vertices;
-    meshCreateInfo.indices              = indices;
-
-    if (Mesh::createMesh(&test, meshCreateInfo) != 0)
-    {
-        Logger::printError("Cazdj", "izauda");
-    }
-
-    transferCommandPool.clean();
-
     std::vector<VkBuffer> vertexBuffers =
     {
         test.getVertexBuffer().getBuffer()
@@ -90,7 +42,7 @@ void init()
     Window::WindowCreateInfo windowCreateInfo = {};
     windowCreateInfo.initialWidth             = 1280;
     windowCreateInfo.initialHeight            = 720;
-    windowCreateInfo.resizable                = GLFW_FALSE;
+    windowCreateInfo.resizable                = GLFW_TRUE;
     windowCreateInfo.title                    = "Synk Vulkan Engine";
 
     CoreComponents::CoreComponentsCreateInfo coreComponentsCreateInfo = {};
@@ -169,6 +121,56 @@ void init()
     pipelineCreateInfo.vertexInputInfo              = vertexInputInfo;
     pipelineCreateInfo.descriptorsInfo              = descriptorsInfo;
 
+    /* mesh */
+
+    CommandPool transferCommandPool;
+
+    CommandPool::CommandPoolCreateInfo transferCommandPoolcreateInfo  = {};
+    transferCommandPoolcreateInfo.pPhysicalDevice                     = coreComponents.getPhysicalDevice();
+    transferCommandPoolcreateInfo.pLogicalDevice                      = coreComponents.getLogicalDevice();
+    transferCommandPoolcreateInfo.queueFamilyIndex                    = coreComponents.getPhysicalDevice()->getQueueFamilies().transferFamily.value();
+
+    if (CommandPool::createCommandPool(&transferCommandPool, transferCommandPoolcreateInfo) != 0)
+    {
+        Logger::printError("adazdazdazda", "azudadhaidhaidaidhai");
+    }
+
+    std::vector<float> vertices =
+    {
+        -1.0f, +0.0f, 0.0f,    1.0f, 0.0f, 0.0f, 1.0f,
+        +0.0f, -1.0f, 0.0f,    0.0f, 1.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
+        +0.0f, +0.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
+
+        +1.0f, +0.0f, 0.0f,    0.0f, 1.0f, 0.0f, 1.0f,
+        -0.0f, +1.0f, 0.0f,    1.0f, 0.0f, 0.0f, 1.0f,
+        +1.0f, +1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
+        +0.0f, +0.0f, 0.0f,    0.0f, 0.0f, 1.0f, 1.0f,
+    };
+
+    std::vector<uint16_t> indices =
+    {
+        0, 1, 2,
+        0, 3, 1,
+
+        4, 5, 6,
+        4, 7, 5,
+    };
+
+    Mesh::MeshCreateInfo meshCreateInfo = {};
+    meshCreateInfo.pPhysicalDevice      = coreComponents.getPhysicalDevice();
+    meshCreateInfo.pLogicalDevice       = coreComponents.getLogicalDevice();
+    meshCreateInfo.pCommandPool         = &transferCommandPool;
+    meshCreateInfo.vertices             = vertices;
+    meshCreateInfo.indices              = indices;
+
+    if (Mesh::createMesh(&test, meshCreateInfo) != 0)
+    {
+        Logger::printError("Cazdj", "izauda");
+    }
+
+    transferCommandPool.clean();
+
     /* scene */
 
     Scene::SceneCreateInfo sceneCreateInfo  = {};
@@ -200,7 +202,7 @@ void render()
 void clean()
 {
     coreComponents.getLogicalDevice()->wait();
-    
+
     test.clean();
 
     scene.clean();

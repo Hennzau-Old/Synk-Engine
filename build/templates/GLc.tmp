@@ -1,0 +1,33 @@
+#include "[path].h"
+
+[name]::[name]()
+{
+
+}
+
+[name]::~[name]()
+{
+
+}
+
+void [name]::clean()
+{
+
+}
+
+void [name]::setInfo(const [name]Info& info)
+{
+    m_info = info;
+}
+
+int [name]::create[name]([name]* [nameb], const [name]Info& info)
+{
+    [nameb]->setData(info);
+
+    return 0;
+}
+
+[name]::[name]Info& [name]::getInfo()
+{
+    return m_info;
+}
