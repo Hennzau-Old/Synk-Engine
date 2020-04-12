@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 11:19:04 2020
+  =============================================*/ 
+
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
@@ -27,8 +31,7 @@ class RenderPass
 
         struct RenderPassComponents
         {
-            LogicalDevice*          pLogicalDevice  = nullptr;
-
+            LogicalDevice*          pLogicalDevice = nullptr;
         } m_components;
 
     public:
@@ -41,7 +44,7 @@ class RenderPass
 
         struct RenderPassCreateInfo
         {
-            LogicalDevice*          pLogicalDevice  = nullptr;
+            LogicalDevice*          pLogicalDevice = nullptr;
 
             VkFormat                format;
             VkSampleCountFlagBits   samples;
@@ -58,24 +61,24 @@ class RenderPass
         RenderPass();
         ~RenderPass();
 
-        void                      clean();
-        void                      setData(const RenderPassCreateInfo& createInfo);
+        void                    clean();
+        void                    setData(const RenderPassCreateInfo& createInfo);
 
-        static int                createRenderPass(RenderPass* renderPass, const RenderPassCreateInfo& createInfo);
+        static int              createRenderPass(RenderPass* renderpass, const RenderPassCreateInfo& createInfo);
 
-        inline VkRenderPass&      getRenderPass() { return m_renderPass; }
+        inline VkRenderPass&    getRenderPass() { return m_renderPass; }
 
         /* variables */
 
-        RenderPassInfo            renderPassInfo;
+        RenderPassInfo          renderpassInfo;
 
     private:
 
         /* functions */
 
-        int                       createRenderPass();
+        int                     createRenderPass();
 
         /* variables */
 
-        VkRenderPass              m_renderPass;
+        VkRenderPass            m_renderPass;
 };

@@ -73,8 +73,3 @@ void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height
     display->windowInfo.width  = width;
     display->windowInfo.height = height;
 }
-
-bool Window::isClosed() const
-{
-    return glfwWindowShouldClose(m_window);
-}

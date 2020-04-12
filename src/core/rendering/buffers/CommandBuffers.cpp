@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 12:50:49 2020
+  =============================================*/ 
+
 #include "core/rendering/buffers/CommandBuffers.h"
 
 CommandBuffers::CommandBuffers()
@@ -17,6 +21,15 @@ void CommandBuffers::clean()
     Logger::printInfo("CommandBuffers::clean", "vkFreeCommandBuffers!");
 }
 
+void CommandBuffers::setData(const CommandBuffersCreateInfo& createInfo)
+{
+    m_components.pLogicalDevice   = createInfo.pLogicalDevice;
+    m_components.pSwapchain       = createInfo.pSwapchain;
+    m_components.pCommandPool     = createInfo.pCommandPool;
+
+    commandbuffersInfo.pFramebuffers  = createInfo.pFramebuffers;
+}
+
 void CommandBuffers::beginCommandBuffers(const uint32_t& index)
 {
     VkCommandBufferBeginInfo commandBufferBeginInfo = {};
@@ -30,14 +43,14 @@ void CommandBuffers::beginCommandBuffers(const uint32_t& index)
     }
 }
 
-void CommandBuffers::beginRenderPass(const uint32_t& index, RenderPass* renderPass)
+void CommandBuffers::beginRenderPass(const uint32_t& index, const VkRenderPass& renderPass)
 {
     VkClearValue clearColor               = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     VkRenderPassBeginInfo renderPassInfo  = {};
     renderPassInfo.sType                  = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass             = renderPass->getRenderPass();
-    renderPassInfo.framebuffer            = commandBuffersInfo.pFramebuffers->at(index).getFramebuffer();
+    renderPassInfo.renderPass             = renderPass;
+    renderPassInfo.framebuffer            = commandbuffersInfo.pFramebuffers->at(index).getFramebuffer();
     renderPassInfo.renderArea.offset      = {0, 0};
     renderPassInfo.renderArea.extent      = m_components.pSwapchain->getExtent();
 
@@ -47,22 +60,12 @@ void CommandBuffers::beginRenderPass(const uint32_t& index, RenderPass* renderPa
     vkCmdBeginRenderPass(m_commandBuffers[index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void CommandBuffers::setData(const CommandBuffersCreateInfo& createInfo)
+void CommandBuffers::bindPipeline(const uint32_t& index, const VkPipeline& pipeline)
 {
-    m_components.pLogicalDevice   = createInfo.pLogicalDevice;
-    m_components.pSwapchain       = createInfo.pSwapchain;
-    m_components.pCommandPool     = createInfo.pCommandPool;
-
-    commandBuffersInfo.pFramebuffers  = createInfo.pFramebuffers;
+    vkCmdBindPipeline(m_commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 }
 
-void CommandBuffers::bindPipeline(const uint32_t& index, Pipeline* pipeline)
-{
-    vkCmdBindPipeline(m_commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getPipeline());
-}
-
-
-void CommandBuffers::bindVertexBuffer(const uint32_t& index, std::vector<VkBuffer>& vertexBuffers)
+void CommandBuffers::bindVertexBuffer(const uint32_t& index, const std::vector<VkBuffer>& vertexBuffers)
 {
     VkDeviceSize offsets[] =
     {
@@ -74,7 +77,7 @@ void CommandBuffers::bindVertexBuffer(const uint32_t& index, std::vector<VkBuffe
     vkCmdBindVertexBuffers(m_commandBuffers[index], 0, binding, vertexBuffers.data(), offsets);
 }
 
-void CommandBuffers::bindIndexBuffer(const uint32_t& index, VkBuffer& indexBuffer)
+void CommandBuffers::bindIndexBuffer(const uint32_t& index, const VkBuffer& indexBuffer)
 {
     vkCmdBindIndexBuffer(m_commandBuffers[index], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 }
@@ -99,7 +102,7 @@ void CommandBuffers::endCommandBuffers(const uint32_t& index)
 
 int CommandBuffers::createCommandBuffers()
 {
-    m_commandBuffers.resize(commandBuffersInfo.pFramebuffers->size());
+    m_commandBuffers.resize(commandbuffersInfo.pFramebuffers->size());
 
     VkCommandBufferAllocateInfo commandBufferAllocInfo  = {};
     commandBufferAllocInfo.sType                        = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -117,9 +120,9 @@ int CommandBuffers::createCommandBuffers()
     return 0;
 }
 
-int CommandBuffers::createCommandBuffers(CommandBuffers* commandBuffers, const CommandBuffersCreateInfo& createInfo)
+int CommandBuffers::createCommandBuffers(CommandBuffers* commandbuffers, const CommandBuffersCreateInfo& createInfo)
 {
-    commandBuffers->setData(createInfo);
+    commandbuffers->setData(createInfo);
 
-    return commandBuffers->createCommandBuffers();
+    return commandbuffers->createCommandBuffers();
 }

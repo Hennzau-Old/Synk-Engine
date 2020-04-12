@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 10:08:47 2020
+  =============================================*/ 
+
 #include "core/rendering/Shader.h"
 
 Shader::Shader()
@@ -12,88 +16,61 @@ Shader::~Shader()
 
 void Shader::clean()
 {
-    vkDestroyShaderModule(m_components.pLogicalDevice->getLogicalDevice(), m_vertexShader, nullptr);
-    vkDestroyShaderModule(m_components.pLogicalDevice->getLogicalDevice(), m_fragmentShader, nullptr);
-
-    Logger::printInfo("Shader::clean", "vkDestroyShaderModule x2!");
+    vkDestroyShaderModule(m_components.pLogicalDevice->getLogicalDevice(), m_vertexShaderModule, nullptr);
+    vkDestroyShaderModule(m_components.pLogicalDevice->getLogicalDevice(), m_fragmentShaderModule, nullptr);
 }
 
 void Shader::setData(const ShaderCreateInfo& createInfo)
 {
-    m_components.pLogicalDevice   = createInfo.pLogicalDevice;
+    shaderInfo.vertexShaderCode     = createInfo.vertexShaderCode;
+    shaderInfo.fragmentShaderCode   = createInfo.fragmentShaderCode;
 
-    shaderInfo.vertexShaderCode   = createInfo.vertexShaderCode;
-    shaderInfo.fragmentShaderCode = createInfo.fragmentShaderCode;
+    m_components.pLogicalDevice     = createInfo.pLogicalDevice;
 }
 
-int Shader::createShaders()
+int Shader::createShader()
 {
-    std::vector<char> vertexShaderCode  (shaderInfo.vertexShaderCode.begin(), shaderInfo.vertexShaderCode.end());
-    std::vector<char> fragmentShaderCode(shaderInfo.fragmentShaderCode.begin(), shaderInfo.fragmentShaderCode.end());
-
-    m_vertexShader    = createShaderModule(vertexShaderCode);
-    m_fragmentShader  = createShaderModule(fragmentShaderCode);
-
-    if (m_vertexShader == VK_NULL_HANDLE)
+    auto createShader { [](const std::string& code, VkDevice logicalDevice) -> VkShaderModule
     {
-        Logger::printError("Shader::createShader", "createVertexShaderModule failed!");
+        VkShaderModule shader;
 
-        return 1;
-    }
+        VkShaderModuleCreateInfo shaderCreateInfo   = {};
+        shaderCreateInfo.sType                      = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        shaderCreateInfo.codeSize                   = code.size();
+        shaderCreateInfo.pCode                      = reinterpret_cast<const uint32_t*> (code.data());
 
-    if (m_fragmentShader == VK_NULL_HANDLE)
-    {
-        Logger::printError("Shader::createShader", "createFragmentShaderModule failed!");
+        if (vkCreateShaderModule(logicalDevice, &shaderCreateInfo, nullptr, &shader) != VK_SUCCESS)
+        {
+            Logger::printError("Shader::createShader[lambda=createShader]", "vkCreateShaderModule failed!");   
+        }
 
-        return 1;
-    }
+        return shader;
+    }};
 
+    m_vertexShaderModule = createShader(shaderInfo.vertexShaderCode, m_components.pLogicalDevice->getLogicalDevice());
+    m_fragmentShaderModule = createShader(shaderInfo.fragmentShaderCode, m_components.pLogicalDevice->getLogicalDevice());
+
+    VkPipelineShaderStageCreateInfo vertexShaderStageCreateInfo = {};
+    vertexShaderStageCreateInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertexShaderStageCreateInfo.stage                           = VK_SHADER_STAGE_VERTEX_BIT;
+    vertexShaderStageCreateInfo.module                          = m_vertexShaderModule;
+    vertexShaderStageCreateInfo.pName                           = "main";
+
+    VkPipelineShaderStageCreateInfo fragmentShaderStageCreateInfo   = {};
+    fragmentShaderStageCreateInfo.sType                             = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragmentShaderStageCreateInfo.stage                             = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragmentShaderStageCreateInfo.module                            = m_fragmentShaderModule;
+    fragmentShaderStageCreateInfo.pName                             = "main";
+
+    m_pipelineShaderStages.push_back(vertexShaderStageCreateInfo);
+    m_pipelineShaderStages.push_back(fragmentShaderStageCreateInfo);
+    
     return 0;
-}
-
-int Shader::createShaderStages()
-{
-    VkPipelineShaderStageCreateInfo vertexShaderStageInfo = {};
-    vertexShaderStageInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vertexShaderStageInfo.stage                           = VK_SHADER_STAGE_VERTEX_BIT;
-    vertexShaderStageInfo.module                          = m_vertexShader;
-    vertexShaderStageInfo.pName                           = "main";
-
-    VkPipelineShaderStageCreateInfo fragmentShaderStageInfo = {};
-    fragmentShaderStageInfo.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    fragmentShaderStageInfo.stage                           = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragmentShaderStageInfo.module                          = m_fragmentShader;
-    fragmentShaderStageInfo.pName                           = "main";
-
-    m_shaderStages.push_back(vertexShaderStageInfo);
-    m_shaderStages.push_back(fragmentShaderStageInfo);
-
-    return 0;
-}
-
-VkShaderModule Shader::createShaderModule(const std::vector<char>& code)
-{
-    VkShaderModule shaderModule;
-
-    VkShaderModuleCreateInfo createInfo = {};
-    createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize                 = code.size();
-    createInfo.pCode                    = reinterpret_cast<const uint32_t*>(code.data());
-
-    if (vkCreateShaderModule(m_components.pLogicalDevice->getLogicalDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-    {
-        Logger::printError("Shader::createShaderModule", "vkCreateShaderModule failed!");
-
-        return VK_NULL_HANDLE;
-    }
-
-    return shaderModule;
 }
 
 int Shader::createShader(Shader* shader, const ShaderCreateInfo& createInfo)
 {
     shader->setData(createInfo);
 
-    return  shader->createShaders() +
-            shader->createShaderStages();
+    return shader->createShader();
 }

@@ -53,14 +53,16 @@ class CoreComponents
         void                      clean();
         void                      setData(const CoreComponentsCreateInfo& createInfo);
 
+        int                       createSwapchain();
+
         static int                createCoreComponents(CoreComponents* coreComponents, const CoreComponentsCreateInfo& createInfo);
 
-        inline Window*            getWindow         () { return &m_window;         }
-        inline Instance*          getInstance       () { return &m_instance;       }
-        inline Surface*           getSurface        () { return &m_surface;        }
-        inline PhysicalDevice*    getPhysicalDevice () { return &m_physicalDevice; }
-        inline LogicalDevice*     getLogicalDevice  () { return &m_logicalDevice;  }
-        inline Swapchain*         getSwapchain      () { return &m_swapchain;      }
+        inline Window&            getWindow         () { return m_window;         }
+        inline Instance&          getInstance       () { return m_instance;       }
+        inline Surface&           getSurface        () { return m_surface;        }
+        inline PhysicalDevice&    getPhysicalDevice () { return m_physicalDevice; }
+        inline LogicalDevice&     getLogicalDevice  () { return m_logicalDevice;  }
+        inline Swapchain&         getSwapchain      () { return m_swapchain;      }
 
         /* variables */
 
@@ -75,7 +77,6 @@ class CoreComponents
         int                       createSurface();
         int                       createPhysicalDevice();
         int                       createLogicalDevice();
-        int                       createSwapchain();
         int                       endCreation();
 
         /* variables */

@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 11:19:04 2020
+  =============================================*/ 
+
 #include "core/rendering/RenderPass.h"
 
 RenderPass::RenderPass()
@@ -21,27 +25,28 @@ void RenderPass::setData(const RenderPassCreateInfo& createInfo)
 {
     m_components.pLogicalDevice   = createInfo.pLogicalDevice;
 
-    renderPassInfo.format         = createInfo.format;
-    renderPassInfo.samples        = createInfo.samples;
-    renderPassInfo.loadOp         = createInfo.loadOp;
-    renderPassInfo.storeOp        = createInfo.storeOp;
-    renderPassInfo.stencilLoadOp  = createInfo.stencilLoadOp;
-    renderPassInfo.stencilStoreOp = createInfo.stencilStoreOp;
-    renderPassInfo.initialLayout  = createInfo.initialLayout;
-    renderPassInfo.finalLayout    = createInfo.finalLayout;
+    renderpassInfo.format         = createInfo.format;
+    renderpassInfo.samples        = createInfo.samples;
+    renderpassInfo.loadOp         = createInfo.loadOp;
+    renderpassInfo.storeOp        = createInfo.storeOp;
+    renderpassInfo.stencilLoadOp  = createInfo.stencilLoadOp;
+    renderpassInfo.stencilStoreOp = createInfo.stencilStoreOp;
+    renderpassInfo.initialLayout  = createInfo.initialLayout;
+    renderpassInfo.finalLayout    = createInfo.finalLayout;
 }
 
 int RenderPass::createRenderPass()
 {
+    
     VkAttachmentDescription colorAttachment = {};
-    colorAttachment.format                  = renderPassInfo.format;
-    colorAttachment.samples                 = renderPassInfo.samples;
-    colorAttachment.loadOp                  = renderPassInfo.loadOp;
-    colorAttachment.storeOp                 = renderPassInfo.storeOp;
-    colorAttachment.stencilLoadOp           = renderPassInfo.stencilLoadOp;
-    colorAttachment.stencilStoreOp          = renderPassInfo.stencilStoreOp;
-    colorAttachment.initialLayout           = renderPassInfo.initialLayout;
-    colorAttachment.finalLayout             = renderPassInfo.finalLayout;
+    colorAttachment.format                  = renderpassInfo.format;
+    colorAttachment.samples                 = renderpassInfo.samples;
+    colorAttachment.loadOp                  = renderpassInfo.loadOp;
+    colorAttachment.storeOp                 = renderpassInfo.storeOp;
+    colorAttachment.stencilLoadOp           = renderpassInfo.stencilLoadOp;
+    colorAttachment.stencilStoreOp          = renderpassInfo.stencilStoreOp;
+    colorAttachment.initialLayout           = renderpassInfo.initialLayout;
+    colorAttachment.finalLayout             = renderpassInfo.finalLayout;
 
     VkAttachmentReference colorAttachmentReference  = {};
     colorAttachmentReference.attachment             = 0;
@@ -79,9 +84,9 @@ int RenderPass::createRenderPass()
     return 0;
 }
 
-int RenderPass::createRenderPass(RenderPass* renderPass, const RenderPassCreateInfo& createInfo)
+int RenderPass::createRenderPass(RenderPass* renderpass, const RenderPassCreateInfo& createInfo)
 {
-    renderPass->setData(createInfo);
+    renderpass->setData(createInfo);
 
-    return renderPass->createRenderPass();
+    return renderpass->createRenderPass();
 }

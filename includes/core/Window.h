@@ -21,7 +21,7 @@ class Window
 
             std::string   title;
 
-            bool          resizedStatus;
+            bool          resizedStatus = false;
         };
 
     public:
@@ -55,7 +55,7 @@ class Window
         static int                createWindow(Window* window, const WindowCreateInfo& createInfo);
         static void               framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
-        bool                      isClosed() const;
+        inline bool               isClosed() const { return glfwWindowShouldClose(m_window); }
 
         inline GLFWwindow*        getWindow() const { return m_window; }
 

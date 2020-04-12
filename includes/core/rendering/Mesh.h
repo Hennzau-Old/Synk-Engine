@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 16:07:14 2020
+  =============================================*/ 
+
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
@@ -28,7 +32,6 @@ class Mesh
             PhysicalDevice*         pPhysicalDevice = nullptr;
             LogicalDevice*          pLogicalDevice  = nullptr;
             CommandPool*            pCommandPool    = nullptr;
-
         } m_components;
 
     public:
@@ -54,27 +57,29 @@ class Mesh
         Mesh();
         ~Mesh();
 
-        void                      clean();
-        void                      setData(const MeshCreateInfo& createInfo);
+        void                    clean();
+        void                    setData(const MeshCreateInfo& createInfo);
 
-        static int                createMesh(Mesh* mesh, const MeshCreateInfo& createInfo);
+        static int              createMesh(Mesh* mesh, const MeshCreateInfo& createInfo);
 
-        inline Buffer&            getVertexBuffer () { return m_vertexBuffer; }
-        inline Buffer&            getIndexBuffer  () { return m_indexBuffer;  }
+        inline Buffer&          getVertexBuffer () { return m_vertexBuffer; }
+        inline Buffer&          getIndexBuffer  () { return m_indexBuffer;  }
 
         /* variables */
 
-        MeshInfo                  meshInfo;
+        MeshInfo                meshInfo;
 
     private:
 
         /* functions */
 
-        int                       createVertexBuffer();
-        int                       createIndexBuffer();
+        int                     createVertexBuffer();
+        int                     createIndexBuffer();
+        int                     createMesh();
 
         /* variables */
 
-        Buffer                    m_vertexBuffer;
-        Buffer                    m_indexBuffer;
+        Buffer                  m_vertexBuffer;
+        Buffer                  m_indexBuffer;
+
 };

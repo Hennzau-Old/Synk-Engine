@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 10:26:17 2020
+  =============================================*/ 
+
 #include "core/rendering/Pipeline.h"
 
 Pipeline::Pipeline()
@@ -15,37 +19,29 @@ void Pipeline::clean()
     vkDestroyPipeline(m_components.pLogicalDevice->getLogicalDevice(), m_pipeline, nullptr);
 
     Logger::printInfo("Pipeline::clean", "vkDestroyPipeline!");
-
-    vkDestroyPipelineLayout(m_components.pLogicalDevice->getLogicalDevice(), m_pipelineLayout, nullptr);
-
-    Logger::printInfo("Pipeline::clean", "vkDestroyPipelineLayout!");
-
-    vkDestroyDescriptorSetLayout(m_components.pLogicalDevice->getLogicalDevice(), m_descriptorSetLayout, nullptr);
-
-    Logger::printInfo("Pipeline::clean", "vkDestroyDescriptorSetLayout!");
 }
 
 void Pipeline::setData(const PipelineCreateInfo& createInfo)
 {
-    m_components.pLogicalDevice = createInfo.pLogicalDevice;
-    m_components.pSwapchain     = createInfo.pSwapchain;
-    m_components.pShader        = createInfo.pShader;
-    m_components.pRenderPass    = createInfo.pRenderPass;
+    m_components.pLogicalDevice             = createInfo.pLogicalDevice;
+    m_components.pSwapchain                 = createInfo.pSwapchain;
+    m_components.pShader                    = createInfo.pShader;
+    m_components.pRenderPass                = createInfo.pRenderPass;
+    m_components.pPipelineLayout            = createInfo.pPipelineLayout;
 
-    pipelineInfo.rasterizationInfo  = createInfo.rasterizationInfo;
-    pipelineInfo.vertexInputInfo    = createInfo.vertexInputInfo;
-    pipelineInfo.descriptorsInfo    = createInfo.descriptorsInfo;
+    pipelineInfo.rasterizationInfo          = createInfo.rasterizationInfo;
+    pipelineInfo.vertexInputInfo            = createInfo.vertexInputInfo;
 }
 
 int Pipeline::createPipeline()
 {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo  = {};
     vertexInputInfo.sType                                 = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount         = 1;
-    vertexInputInfo.vertexAttributeDescriptionCount       = static_cast<uint32_t>(pipelineInfo.vertexInputInfo.vertexAttributeDescriptions.size());
-    vertexInputInfo.pVertexBindingDescriptions            = &pipelineInfo.vertexInputInfo.vertexBindingDescription;
-    vertexInputInfo.pVertexAttributeDescriptions          = pipelineInfo.vertexInputInfo.vertexAttributeDescriptions.data();
-
+    vertexInputInfo.vertexBindingDescriptionCount         = pipelineInfo.vertexInputInfo.vertexBindingDescriptionCount;
+    vertexInputInfo.pVertexBindingDescriptions            = pipelineInfo.vertexInputInfo.pVertexBindingDescription;
+    vertexInputInfo.vertexAttributeDescriptionCount       = pipelineInfo.vertexInputInfo.vertexAttributeDescriptionsCount;
+    vertexInputInfo.pVertexAttributeDescriptions          = pipelineInfo.vertexInputInfo.pVertexAttributeDescriptions;
+  
     VkPipelineInputAssemblyStateCreateInfo inputAssembly  = {};
     inputAssembly.sType                                   = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssembly.topology                                = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -128,34 +124,6 @@ int Pipeline::createPipeline()
     dynamicState.dynamicStateCount                = 2;
     dynamicState.pDynamicStates                   = dynamicStates;
 
-    uint32_t bindingCount = static_cast<uint32_t>(pipelineInfo.descriptorsInfo.descriptors.size());
-
-    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo = {};
-    descriptorSetLayoutInfo.sType                           = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    descriptorSetLayoutInfo.bindingCount                    = bindingCount;
-    descriptorSetLayoutInfo.pBindings                       = pipelineInfo.descriptorsInfo.descriptors.data();
-
-    if (vkCreateDescriptorSetLayout(m_components.pLogicalDevice->getLogicalDevice(), &descriptorSetLayoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
-    {
-        Logger::printError("Pipeline::createPipeline", "vkCreateDescriptorSetLayout failed!");
-
-        return 1;
-    }
-
-    VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
-    pipelineLayoutCreateInfo.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutCreateInfo.setLayoutCount             = 1;
-    pipelineLayoutCreateInfo.pSetLayouts                = &m_descriptorSetLayout;
-    pipelineLayoutCreateInfo.pushConstantRangeCount     = 0;
-    pipelineLayoutCreateInfo.pPushConstantRanges        = nullptr;
-
-    if (vkCreatePipelineLayout(m_components.pLogicalDevice->getLogicalDevice(), &pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
-    {
-        Logger::printError("Pipeline::createPipeline", "vkCreatePipelineLayout failed!");
-
-        return 1;
-    }
-
     VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
     pipelineCreateInfo.sType                        = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineCreateInfo.stageCount                   = 2;
@@ -168,7 +136,7 @@ int Pipeline::createPipeline()
     pipelineCreateInfo.pDepthStencilState           = nullptr;
     pipelineCreateInfo.pColorBlendState             = &colorBlending;
     pipelineCreateInfo.pDynamicState                = nullptr;
-    pipelineCreateInfo.layout                       = m_pipelineLayout;
+    pipelineCreateInfo.layout                       = m_components.pPipelineLayout->getPipelineLayout();
     pipelineCreateInfo.renderPass                   = m_components.pRenderPass->getRenderPass();
     pipelineCreateInfo.subpass                      = 0;
     pipelineCreateInfo.basePipelineHandle           = VK_NULL_HANDLE;
@@ -180,7 +148,6 @@ int Pipeline::createPipeline()
 
         return 1;
     }
-
     return 0;
 }
 

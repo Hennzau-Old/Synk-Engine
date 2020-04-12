@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 12:48:41 2020
+  =============================================*/ 
+
 #include "core/rendering/CommandPool.h"
 
 CommandPool::CommandPool()
@@ -42,9 +46,9 @@ int CommandPool::createCommandPool()
     return 0;
 }
 
-int CommandPool::createCommandPool(CommandPool* commandPool, const CommandPoolCreateInfo& createInfo)
+int CommandPool::createCommandPool(CommandPool* commandpool, const CommandPoolCreateInfo& createInfo)
 {
-    commandPool->setData(createInfo);
+    commandpool->setData(createInfo);
 
-    return commandPool->createCommandPool();
+    return commandpool->createCommandPool();
 }

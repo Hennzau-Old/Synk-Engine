@@ -33,14 +33,15 @@ int LogicalDevice::createLogicalDevice()
     auto indices = m_components.pPhysicalDevice->getQueueFamilies();
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    std::set<uint32_t> uniqueQueueFamilies =
+
+    std::set<uint32_t> uniqueQueueFamilies
     {
         indices.graphicsFamily.value(),
         indices.presentFamily.value(),
         indices.transferFamily.value()
     };
 
-    float queuePriority = 1.0f;
+    const auto queuePriority { 1.0f };
 
     for (uint32_t queueFamily : uniqueQueueFamilies)
     {

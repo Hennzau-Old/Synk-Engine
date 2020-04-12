@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 10:08:47 2020
+  =============================================*/ 
+
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
@@ -15,13 +19,13 @@ class Shader
 
         struct ShaderInfo
         {
-            std::string           vertexShaderCode;
-            std::string           fragmentShaderCode;
+            std::string         vertexShaderCode;
+            std::string         fragmentShaderCode;
         };
 
         struct ShaderComponents
         {
-            LogicalDevice*        pLogicalDevice  = nullptr;
+            LogicalDevice*      pLogicalDevice  = nullptr;
 
         } m_components;
 
@@ -35,10 +39,10 @@ class Shader
 
         struct ShaderCreateInfo
         {
-            LogicalDevice*        pLogicalDevice  = nullptr;
+            LogicalDevice*      pLogicalDevice  = nullptr;
 
-            std::string           vertexShaderCode;
-            std::string           fragmentShaderCode;
+            std::string         vertexShaderCode;
+            std::string         fragmentShaderCode;                
         };
 
         /* functions */
@@ -46,30 +50,29 @@ class Shader
         Shader();
         ~Shader();
 
-        void                      clean();
-        void                      setData(const ShaderCreateInfo& createInfo);
+        void                    clean();
+        void                    setData(const ShaderCreateInfo& createInfo);
 
-        static int                createShader(Shader* shader, const ShaderCreateInfo& createInfo);
+        static int              createShader(Shader* shader, const ShaderCreateInfo& createInfo);
 
-        inline std::vector<VkPipelineShaderStageCreateInfo>& getShaderStages() { return m_shaderStages; }
+        inline VkShaderModule&  getVertexShader     () { return m_vertexShaderModule; }
+        inline VkShaderModule&  getFragmentSahder   () { return m_fragmentShaderModule; }
+        inline std::vector<VkPipelineShaderStageCreateInfo>&            getShaderStages     () { return m_pipelineShaderStages; }
 
         /* variables */
 
-        ShaderInfo                shaderInfo;
+        ShaderInfo              shaderInfo;
 
     private:
 
         /* functions */
 
-        int                       createShaders();
-        int                       createShaderStages();
-
-        VkShaderModule            createShaderModule(const std::vector<char>& code);
+        int                     createShader();
 
         /* variables */
 
-        VkShaderModule            m_vertexShader;
-        VkShaderModule            m_fragmentShader;
+        VkShaderModule          m_vertexShaderModule;
+        VkShaderModule          m_fragmentShaderModule;
 
-        std::vector<VkPipelineShaderStageCreateInfo> m_shaderStages;
+        std::vector<VkPipelineShaderStageCreateInfo> m_pipelineShaderStages;
 };

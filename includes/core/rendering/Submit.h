@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 13:20:18 2020
+  =============================================*/ 
+
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
@@ -9,8 +13,6 @@
 #include "core/LogicalDevice.h"
 #include "core/Swapchain.h"
 #include "core/rendering/buffers/CommandBuffers.h"
-
-class Scene;
 
 class Submit
 {
@@ -25,11 +27,9 @@ class Submit
 
         struct SubmitComponents
         {
-            Window*               pWindow               = nullptr;
-            LogicalDevice*        pLogicalDevice        = nullptr;
-            Swapchain*            pSwapchain            = nullptr;
-            Scene*                pScene                = nullptr;
-
+            LogicalDevice*          pLogicalDevice      = nullptr;
+            Swapchain*              pSwapchain          = nullptr;
+            Window*                 pWindow             = nullptr;
         } m_components;
 
     public:
@@ -42,10 +42,9 @@ class Submit
 
         struct SubmitCreateInfo
         {
-            Window*               pWindow               = nullptr;
-            LogicalDevice*        pLogicalDevice        = nullptr;
-            Swapchain*            pSwapchain            = nullptr;
-            Scene*                pScene                = nullptr;
+            LogicalDevice*          pLogicalDevice      = nullptr;
+            Swapchain*              pSwapchain          = nullptr;
+            Window*                 pWindow             = nullptr;
         };
 
         /* functions */
@@ -53,30 +52,29 @@ class Submit
         Submit();
         ~Submit();
 
-        void                      clean();
-        void                      setData(const SubmitCreateInfo& createInfo);
+        void                        clean();
+        void                        setData(const SubmitCreateInfo& createInfo);
 
-        void                      submit(CommandBuffers* commandBuffers);
+        int                         submit(CommandBuffers* commandBuffers);
 
-        static int                createSubmit(Submit* submit, const SubmitCreateInfo& createInfo);
+        static int                  createSubmit(Submit* submit, const SubmitCreateInfo& createInfo);
 
         /* variables */
 
-        SubmitInfo                submitInfo;
+        SubmitInfo                  submitInfo;
 
     private:
 
         /* functions */
 
-        int                       createSyncObjects();
+        int                         createSubmit();
 
         /* variables */
 
-        std::vector<VkSemaphore>  m_imageAvailableSemaphores;
-        std::vector<VkSemaphore>  m_renderFinishedSemaphores;
-        std::vector<VkFence>      m_inFlightFences;
-        std::vector<VkFence>      m_inFlightImages;
+        std::vector<VkSemaphore>    m_imageAvailableSemaphores;
+        std::vector<VkSemaphore>    m_renderFinishedSemaphores;
+        std::vector<VkFence>        m_inFlightFences;
+        std::vector<VkFence>        m_inFlightImages;
 
-        size_t                    m_currentFrame = 0;
-
+        size_t                      m_currentFrame = 0;
 };

@@ -1,5 +1,8 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 13:20:18 2020
+  =============================================*/ 
+
 #include "core/rendering/Submit.h"
-#include "core/rendering/Scene.h"
 
 Submit::Submit()
 {
@@ -13,25 +16,22 @@ Submit::~Submit()
 
 void Submit::clean()
 {
-  for (size_t i = 0; i <  MAX_FRAMES_IN_FLIGHT; i++)
-  {
-     vkDestroySemaphore(m_components.pLogicalDevice->getLogicalDevice(), m_renderFinishedSemaphores[i], nullptr);
-     vkDestroySemaphore(m_components.pLogicalDevice->getLogicalDevice(), m_imageAvailableSemaphores[i], nullptr);
-     vkDestroyFence(m_components.pLogicalDevice->getLogicalDevice(), m_inFlightFences[i], nullptr);
-  }
-
-  Logger::printInfo("Submit::clean", "destroySyncObjects!");
+    for (auto i { 0 }; i <  MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        vkDestroySemaphore(m_components.pLogicalDevice->getLogicalDevice(), m_renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(m_components.pLogicalDevice->getLogicalDevice(), m_imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(m_components.pLogicalDevice->getLogicalDevice(), m_inFlightFences[i], nullptr);
+    }
 }
 
 void Submit::setData(const SubmitCreateInfo& createInfo)
 {
-    m_components.pWindow        = createInfo.pWindow;
-    m_components.pLogicalDevice = createInfo.pLogicalDevice;
-    m_components.pSwapchain     = createInfo.pSwapchain;
-    m_components.pScene         = createInfo.pScene;
+    m_components.pLogicalDevice     = createInfo.pLogicalDevice;
+    m_components.pSwapchain         = createInfo.pSwapchain;
+    m_components.pWindow            = createInfo.pWindow;
 }
 
-void Submit::submit(CommandBuffers* commandBuffers)
+int Submit::submit(CommandBuffers* commandBuffers)
 {
     vkWaitForFences(m_components.pLogicalDevice->getLogicalDevice(), 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -40,11 +40,12 @@ void Submit::submit(CommandBuffers* commandBuffers)
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        m_components.pScene->resize();
-        return;
+        return 2;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
         Logger::printError("Submit::submit", "vkAcquireNextImageKHR failed!");
+
+        return 1;
     }
 
     if (m_inFlightImages[imageIndex] != VK_NULL_HANDLE)
@@ -84,6 +85,8 @@ void Submit::submit(CommandBuffers* commandBuffers)
     if (vkQueueSubmit(m_components.pLogicalDevice->getGraphicsQueue(), 1, &submitInfo, m_inFlightFences[m_currentFrame]) != VK_SUCCESS)
     {
         Logger::printError("Submit::Submit", "vkQueueSubmit failed!");
+
+        return 1;
     }
 
     VkSwapchainKHR swapChains[] =
@@ -105,18 +108,21 @@ void Submit::submit(CommandBuffers* commandBuffers)
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_components.pWindow->windowInfo.resizedStatus)
     {
         m_components.pWindow->windowInfo.resizedStatus = false;
-        m_components.pScene->resize();
-        return;
+        
+        return 2;
     } else if (result != VK_SUCCESS)
     {
         Logger::printError("Submit::submit", "vkQueuePresentKHR failed!");
+        return 1;
     }
 
     m_currentFrame++;
     if (m_currentFrame >= MAX_FRAMES_IN_FLIGHT) m_currentFrame = 0;
+
+    return 0;
 }
 
-int Submit::createSyncObjects()
+int Submit::createSubmit()
 {
     m_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     m_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -162,5 +168,5 @@ int Submit::createSubmit(Submit* submit, const SubmitCreateInfo& createInfo)
 {
     submit->setData(createInfo);
 
-    return submit->createSyncObjects();
+    return submit->createSubmit();
 }

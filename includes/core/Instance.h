@@ -67,9 +67,9 @@ class Instance
         /* functions */
 
         int                       createInstance();
-        const char**              getExtensions(uint32_t& extensionCount);
+        const char**              getExtensions(uint32_t& extensionCount) const;
 
-        bool                      checkValidationLayerSupport();
+        bool                      checkValidationLayerSupport() const;
 
         /* variables */
 

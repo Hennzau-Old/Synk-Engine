@@ -22,20 +22,17 @@ void PhysicalDevice::setData(const PhysicalDeviceCreateInfo& createInfo)
     m_components.pSurface  = createInfo.pSurface;
 }
 
-uint32_t PhysicalDevice::ratePhysicalDeviceSuitability(const VkPhysicalDevice& physicalDevice)
+uint32_t PhysicalDevice::ratePhysicalDeviceSuitability(const VkPhysicalDevice& physicalDevice) const
 {
+    const auto                  extensionsSupported     { checkDeviceExtensionSupport(physicalDevice) };
+    auto                        indices                 { findQueueFamilies(physicalDevice) };
+    auto                        swapchainAdequate       { false };
+    
     VkPhysicalDeviceProperties  deviceProperties;
     VkPhysicalDeviceFeatures    deviceFeatures;
-    QueueFamilyIndices          indices;
-
-    bool                        extensionsSupported   = false;
-    bool                        swapchainAdequate     = false;
 
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
     vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
-    indices               = findQueueFamilies(physicalDevice);
-
-    extensionsSupported   = checkDeviceExtensionSupport(physicalDevice);
 
     if (extensionsSupported)
     {
@@ -64,7 +61,7 @@ uint32_t PhysicalDevice::ratePhysicalDeviceSuitability(const VkPhysicalDevice& p
     return score;
 }
 
-PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(const VkPhysicalDevice& physicalDevice)
+PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(const VkPhysicalDevice& physicalDevice) const
 {
     QueueFamilyIndices indices;
 
@@ -74,7 +71,7 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(const VkPhy
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-    unsigned int i = 0;
+    auto i  { 0 };
 
     for (const auto& queueFamily : queueFamilies)
     {
@@ -112,7 +109,7 @@ PhysicalDevice::QueueFamilyIndices PhysicalDevice::findQueueFamilies(const VkPhy
     return indices;
 }
 
-bool PhysicalDevice::checkDeviceExtensionSupport(const VkPhysicalDevice& physicalDevice)
+bool PhysicalDevice::checkDeviceExtensionSupport(const VkPhysicalDevice& physicalDevice) const
 {
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);

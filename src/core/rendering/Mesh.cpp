@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 16:07:14 2020
+  =============================================*/ 
+
 #include "core/rendering/Mesh.h"
 
 Mesh::Mesh()
@@ -26,9 +30,15 @@ void Mesh::setData(const MeshCreateInfo& createInfo)
     meshInfo.indices              = createInfo.indices;
 }
 
+int Mesh::createMesh()
+{   
+    return  createVertexBuffer() +
+            createIndexBuffer();
+}
+
 int Mesh::createVertexBuffer()
 {
-    VkDeviceSize bufferSize = sizeof(meshInfo.vertices[0]) * meshInfo.vertices.size();
+    VkDeviceSize bufferSize { sizeof(meshInfo.vertices[0]) * meshInfo.vertices.size() };
 
     Buffer stagingBuffer;
 
@@ -47,7 +57,7 @@ int Mesh::createVertexBuffer()
         return 1;
     }
 
-    stagingBuffer.copyData(meshInfo.vertices);
+    stagingBuffer.copyData(meshInfo.vertices.data());
 
     Buffer::BufferCreateInfo vertexBufferCreateInfo = stagingBufferCreateInfo;
     vertexBufferCreateInfo.usage                    = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
@@ -69,7 +79,7 @@ int Mesh::createVertexBuffer()
 
 int Mesh::createIndexBuffer()
 {
-    VkDeviceSize bufferSize = sizeof(meshInfo.indices[0]) * meshInfo.indices.size();
+    VkDeviceSize bufferSize { sizeof(meshInfo.indices[0]) * meshInfo.indices.size() };
 
     Buffer stagingBuffer;
 
@@ -88,7 +98,7 @@ int Mesh::createIndexBuffer()
         return 1;
     }
 
-    stagingBuffer.copyData(meshInfo.indices);
+    stagingBuffer.copyData(meshInfo.indices.data());
 
     Buffer::BufferCreateInfo indexBufferCreateInfo  = stagingBufferCreateInfo;
     indexBufferCreateInfo.usage                     = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
@@ -112,6 +122,5 @@ int Mesh::createMesh(Mesh* mesh, const MeshCreateInfo& createInfo)
 {
     mesh->setData(createInfo);
 
-    return  mesh->createVertexBuffer()  +
-            mesh->createIndexBuffer();
+    return mesh->createMesh();
 }

@@ -40,8 +40,8 @@ int Instance::createInstance()
     appInfo.engineVersion       = instanceInfo.engineVersion;
     appInfo.apiVersion          = VK_API_VERSION_1_0;
 
-    uint32_t extensionCount = 0;
-    const char** extensions = getExtensions(extensionCount);
+    auto        extensionCount  { (uint32_t) 0 };
+    const auto  extensions      { getExtensions(extensionCount) };
 
     VkInstanceCreateInfo instanceCreateInfo     = {};
     instanceCreateInfo.sType                    = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -68,22 +68,22 @@ int Instance::createInstance()
     return 0;
 }
 
-const char** Instance::getExtensions(uint32_t& extensionCount)
+const char** Instance::getExtensions(uint32_t& extensionCount) const
 {
     return glfwGetRequiredInstanceExtensions(&extensionCount);
 }
 
-bool Instance::checkValidationLayerSupport()
+bool Instance::checkValidationLayerSupport() const
 {
-    uint32_t layerCount;
+    auto layerCount { (uint32_t) 0};
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-    for (const char* layerName : validationLayers)
+    for (const auto layerName : validationLayers)
     {
-        bool layerFound = false;
+        auto layerFound { false };
 
         for (const auto& layerProperties : availableLayers)
         {

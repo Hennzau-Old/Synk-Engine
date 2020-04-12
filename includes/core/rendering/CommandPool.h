@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 12:48:41 2020
+  =============================================*/ 
+
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
@@ -23,7 +27,6 @@ class CommandPool
         {
             PhysicalDevice*       pPhysicalDevice   = nullptr;
             LogicalDevice*        pLogicalDevice    = nullptr;
-
         } m_components;
 
     public:
@@ -47,24 +50,24 @@ class CommandPool
         CommandPool();
         ~CommandPool();
 
-        void                      clean();
-        void                      setData(const CommandPoolCreateInfo& createInfo);
+        void                    clean();
+        void                    setData(const CommandPoolCreateInfo& createInfo);
 
-        static int                createCommandPool(CommandPool* commandPool, const CommandPoolCreateInfo& createInfo);
+        static int              createCommandPool(CommandPool* commandpool, const CommandPoolCreateInfo& createInfo);
+
+        inline VkCommandPool&   getCommandPool() { return m_commandPool; }
 
         /* variables */
 
-        inline VkCommandPool&     getCommandPool() { return m_commandPool; }
-
-        CommandPoolInfo           commandPoolInfo;
+        CommandPoolInfo         commandPoolInfo;
 
     private:
 
         /* functions */
 
-        int                       createCommandPool();
+        int                     createCommandPool();
 
         /* variables */
 
-        VkCommandPool             m_commandPool;
+        VkCommandPool           m_commandPool;
 };

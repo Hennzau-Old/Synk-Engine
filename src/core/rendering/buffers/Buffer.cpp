@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 13:51:57 2020
+  =============================================*/ 
+
 #include "core/rendering/buffers/Buffer.h"
 
 Buffer::Buffer()
@@ -101,10 +105,10 @@ int Buffer::createBuffer()
 
     vkBindBufferMemory(m_components.pLogicalDevice->getLogicalDevice(), m_buffer, m_bufferMemory, 0);
 
-    return 0;
+   return 0;
 }
 
-uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+uint32_t Buffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(m_components.pPhysicalDevice->getPhysicalDevice(), &memProperties);

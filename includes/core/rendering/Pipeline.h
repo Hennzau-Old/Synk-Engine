@@ -1,22 +1,26 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 10:26:17 2020
+  =============================================*/ 
+
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <vector>
-
 #include "core/utils/logs/Logger.h"
 
 #include "core/LogicalDevice.h"
 #include "core/Swapchain.h"
-#include "core/rendering/Shader.h"
 #include "core/rendering/RenderPass.h"
+#include "core/rendering/Shader.h"
+#include "core/rendering/PipelineLayout.h"
+#include "core/rendering/descriptors/DescriptorSetLayout.h"
 
 class Pipeline
 {
     public:
 
-        /* private structures */
+        /* public structures */
 
         struct RasterizationInfo
         {
@@ -29,22 +33,21 @@ class Pipeline
 
         struct VertexInputInfo
         {
-            VkVertexInputBindingDescription                 vertexBindingDescription;
-            std::vector<VkVertexInputAttributeDescription>  vertexAttributeDescriptions;
-        };
+            uint32_t                            vertexBindingDescriptionCount;
+            VkVertexInputBindingDescription*    pVertexBindingDescription;
 
-        struct DescriptorSetLayoutInfo
-        {
-            std::vector<VkDescriptorSetLayoutBinding>       descriptors;
+            uint32_t                            vertexAttributeDescriptionsCount;
+            VkVertexInputAttributeDescription*  pVertexAttributeDescriptions;
         };
 
     private:
+
+        /* private structues */
 
         struct PipelineInfo
         {
             RasterizationInfo       rasterizationInfo;
             VertexInputInfo         vertexInputInfo;
-            DescriptorSetLayoutInfo descriptorsInfo;
         };
 
         struct PipelineComponents
@@ -53,6 +56,7 @@ class Pipeline
             Swapchain*              pSwapchain      = nullptr;
             Shader*                 pShader         = nullptr;
             RenderPass*             pRenderPass     = nullptr;
+            PipelineLayout*         pPipelineLayout = nullptr;
 
         } m_components;
 
@@ -70,10 +74,10 @@ class Pipeline
             Swapchain*              pSwapchain      = nullptr;
             Shader*                 pShader         = nullptr;
             RenderPass*             pRenderPass     = nullptr;
+            PipelineLayout*         pPipelineLayout = nullptr;
 
             RasterizationInfo       rasterizationInfo;
             VertexInputInfo         vertexInputInfo;
-            DescriptorSetLayoutInfo descriptorsInfo;
         };
 
         /* functions */
@@ -81,28 +85,24 @@ class Pipeline
         Pipeline();
         ~Pipeline();
 
-        void                      clean();
-        void                      setData(const PipelineCreateInfo& createInfo);
+        void                    clean();
+        void                    setData(const PipelineCreateInfo& createInfo);
 
-        static int                createPipeline(Pipeline* pipeline, const PipelineCreateInfo& createInfo);
+        static int              createPipeline(Pipeline* pipeline, const PipelineCreateInfo& createInfo);
 
-        inline VkPipeline&            getPipeline           () { return m_pipeline; }
-        inline VkPipelineLayout&      getPipelineLayout     () { return m_pipelineLayout; }
-        inline VkDescriptorSetLayout& getDescriptorSetLayout() {return m_descriptorSetLayout; }
+        inline VkPipeline&      getPipeline() { return m_pipeline; }
 
         /* variables */
 
-        PipelineInfo                pipelineInfo;
+        PipelineInfo            pipelineInfo;
 
     private:
 
         /* functions */
 
-        int                         createPipeline();
+        int                     createPipeline();
 
-        /* variables */
+        /* variables */ 
 
-        VkPipeline                  m_pipeline;
-        VkPipelineLayout            m_pipelineLayout;
-        VkDescriptorSetLayout       m_descriptorSetLayout;
+        VkPipeline              m_pipeline;
 };

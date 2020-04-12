@@ -63,13 +63,13 @@ class Swapchain
         Swapchain();
         ~Swapchain();
 
-        void                      clean();
-        void                      setData(const SwapchainCreateInfo& createInfo);
+        void                            clean();
+        void                            setData(const SwapchainCreateInfo& createInfo);
 
         static int                      createSwapchain(Swapchain* swapchain, const SwapchainCreateInfo& createInfo);
         static SwapchainSupportDetails  querySwapchainSupportDetails(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
 
-        inline VkSwapchainKHR&          getSwapchain() { return m_swapchain; }
+        inline VkSwapchainKHR&          getSwapchain    () { return m_swapchain; }
 
         inline VkSurfaceFormatKHR&      getSurfaceFormat() { return m_surfaceFormat; }
         inline VkFormat&                getImageFormat  () { return m_imageFormat; }
@@ -90,9 +90,9 @@ class Swapchain
         int                       createSwapChain();
         int                       createImageViews();
 
-        VkSurfaceFormatKHR        chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-        VkPresentModeKHR          chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D                chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+        VkSurfaceFormatKHR        chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
+        VkPresentModeKHR          chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;
+        VkExtent2D                chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
 
         /* variables */
 

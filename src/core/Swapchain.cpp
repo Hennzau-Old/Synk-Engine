@@ -174,7 +174,7 @@ int Swapchain::createSwapchain(Swapchain* swapChain, const SwapchainCreateInfo& 
             swapChain->createImageViews();
 }
 
-VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const
 {
     for (const auto& availableFormat : availableFormats)
     {
@@ -187,7 +187,7 @@ VkSurfaceFormatKHR Swapchain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
     return availableFormats[0];
 }
 
-VkPresentModeKHR Swapchain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+VkPresentModeKHR Swapchain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const
 {
     for (const auto& availablePresentMode : availablePresentModes)
     {
@@ -201,7 +201,7 @@ VkPresentModeKHR Swapchain::chooseSwapPresentMode(const std::vector<VkPresentMod
     return VK_PRESENT_MODE_IMMEDIATE_KHR;
 }
 
-VkExtent2D Swapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+VkExtent2D Swapchain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const
 {
     if (capabilities.currentExtent.width != UINT32_MAX)
     {

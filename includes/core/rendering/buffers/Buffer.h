@@ -1,3 +1,7 @@
+/*=============================================
+   Author: Hennzau on Sat Apr 11 13:51:57 2020
+  =============================================*/ 
+
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
@@ -17,18 +21,17 @@ class Buffer
 
         struct BufferInfo
         {
-            VkDeviceSize          size;
-            VkBufferUsageFlags    usage;
-            VkMemoryPropertyFlags properties;
+            VkDeviceSize            size;
+            VkBufferUsageFlags      usage;
+            VkMemoryPropertyFlags   properties;
         };
 
         struct BufferComponents
         {
-            PhysicalDevice*       pPhysicalDevice   = nullptr;
-            LogicalDevice*        pLogicalDevice    = nullptr;
-            CommandPool*          pCommandPool      = nullptr;
-
-        } m_components;
+            PhysicalDevice*         pPhysicalDevice   = nullptr;
+            LogicalDevice*          pLogicalDevice    = nullptr;
+            CommandPool*            pCommandPool      = nullptr;
+        }   m_components;
 
     public:
 
@@ -40,13 +43,13 @@ class Buffer
 
         struct BufferCreateInfo
         {
-            PhysicalDevice*       pPhysicalDevice   = nullptr;
-            LogicalDevice*        pLogicalDevice    = nullptr;
-            CommandPool*          pCommandPool      = nullptr;
+            PhysicalDevice*         pPhysicalDevice   = nullptr;
+            LogicalDevice*          pLogicalDevice    = nullptr;
+            CommandPool*            pCommandPool      = nullptr;
 
-            VkDeviceSize          size;
-            VkBufferUsageFlags    usage;
-            VkMemoryPropertyFlags properties;
+            VkDeviceSize            size;
+            VkBufferUsageFlags      usage;
+            VkMemoryPropertyFlags   properties;
         };
 
         /* functions */
@@ -54,41 +57,42 @@ class Buffer
         Buffer();
         ~Buffer();
 
-        void                      clean();
-        void                      setData(const BufferCreateInfo& createInfo);
+        void                        clean();
+        void                        setData(const BufferCreateInfo& createInfo);
 
         template<typename T>
-        void                      copyData(std::vector<T> data)
+        void                        copyData(T data)
         {
             void* memData;
 
             vkMapMemory(m_components.pLogicalDevice->getLogicalDevice(), m_bufferMemory, 0, bufferInfo.size, 0, &memData);
 
-                memcpy(memData, data.data(), (size_t) bufferInfo.size);
+                memcpy(memData, data, (size_t) bufferInfo.size);
 
             vkUnmapMemory(m_components.pLogicalDevice->getLogicalDevice(), m_bufferMemory);
         }
 
-        void                      copyToBuffer(Buffer* dstBuffer);
 
-        static int                createBuffer(Buffer* buffer, const BufferCreateInfo& createInfo);
+        void                        copyToBuffer(Buffer* dstBuffer);
 
-        inline VkBuffer&          getBuffer       () { return m_buffer;       }
-        inline VkDeviceMemory&    getBufferMemory () { return m_bufferMemory; }
+        static int                  createBuffer(Buffer* buffer, const BufferCreateInfo& createInfo);
+
+        inline VkBuffer             getBuffer       () { return m_buffer; }
+        inline VkDeviceMemory       getBufferMemory () { return m_bufferMemory; }
 
         /* variables */
 
-        BufferInfo                bufferInfo;
+        BufferInfo                  bufferInfo;
 
     private:
 
         /* functions */
 
-        int                       createBuffer();
-        uint32_t                  findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        int                         createBuffer();
+        uint32_t                    findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 
         /* variables */
 
-        VkBuffer                  m_buffer;
-        VkDeviceMemory            m_bufferMemory;
+        VkBuffer                    m_buffer;
+        VkDeviceMemory              m_bufferMemory;
 };

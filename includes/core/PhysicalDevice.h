@@ -83,9 +83,9 @@ class PhysicalDevice
         /* functions */
 
         int                         createPhysicalDevice();
-        uint32_t                    ratePhysicalDeviceSuitability(const VkPhysicalDevice& physicalDevice);
-        QueueFamilyIndices          findQueueFamilies(const VkPhysicalDevice& physicalDevice);
-        bool                        checkDeviceExtensionSupport(const VkPhysicalDevice& physicalDevice);
+        uint32_t                    ratePhysicalDeviceSuitability(const VkPhysicalDevice& physicalDevice) const;
+        QueueFamilyIndices          findQueueFamilies(const VkPhysicalDevice& physicalDevice) const;
+        bool                        checkDeviceExtensionSupport(const VkPhysicalDevice& physicalDevice) const;
 
         /* variables */
 
